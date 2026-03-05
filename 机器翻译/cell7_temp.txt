@@ -1,0 +1,122 @@
+# --- 3.4 构建词表 ---
+class Vocabulary:
+    """
+    词表类：管理 词↔索引 的双向映射
+    
+    特殊token:
+        <pad> (索引0): 填充符
+        <sos> (索引1): 句子开始符 (Start of Sentence)
+        <eos> (索引2): 句子结束符 (End of Sentence)
+    
+    机器翻译需要<sos>和<eos>:
+        - <sos>: 解码器的第一个输入，告诉模型"开始生成翻译"
+        - <eos>: 模型生成<eos>时停止翻译
+    """
+    def __init__(self):
+        self.word2idx = {'<pad>': 0, '<sos>': 1, '<eos>': 2}
+        self.idx2word = {0: '<pad>', 1: '<sos>', 2: '<eos>'}
+        self.word_count = Counter()
+        self.n_words = 3  # 已有3个特殊token
+    
+    def add_sentence(self, sentence):
+        """将句子中的所有词加入词表"""
+        for word in sentence.split():
+            self.word_count[word] += 1
+            if word not in self.word2idx:
+                self.word2idx[word] = self.n_words
+                self.idx2word[self.n_words] = word
+                self.n_words += 1
+    
+    def encode_sentence(self, sentence):
+        """
+        将句子编码为索引序列，并添加<sos>和<eos>
+        例如: "i love you" → [1, 45, 23, 67, 2]
+                              <sos> i love you <eos>
+        """
+        ids = [SOS_IDX]  # 开头加<sos>
+        ids += [self.word2idx.get(w, 0) for w in sentence.split()]
+        ids.append(EOS_IDX)  # 结尾加<eos>
+        return ids
+    
+    def decode_sequence(self, ids):
+        """将索引序列解码为文本（去掉特殊token）"""
+        words = ids_to_words(ids, self, filter_special=True)
+        return ' '.join(words)
+
+
+def ids_to_words(ids, vocab, filter_special=True):
+    """
+    将 token IDs 转换为词列表
+    
+    参数:
+        ids: token ID 列表或数组
+        vocab: 词汇表对象 (需要有 idx2word 属性)
+        filter_special: 是否过滤特殊标记 (<sos>, <eos>, <pad>)
+    
+    返回:
+        words: 单词列表
+    """
+    words = []
+    for idx in ids:
+        if idx == PAD_IDX:
+            break
+        word = vocab.idx2word.get(idx, '<unk>')
+        if filter_special and word in ['<sos>', '<eos>', '<pad>']:
+            continue
+        words.append(word)
+    return words
+
+
+# 分别为英语和西班牙语构建词表
+eng_vocab = Vocabulary()
+spa_vocab = Vocabulary()
+
+for eng, spa in filtered_pairs:
+    eng_vocab.add_sentence(eng)
+    spa_vocab.add_sentence(spa)
+
+print(f"英语词表大小: {eng_vocab.n_words}")
+print(f"西班牙语词表大小: {spa_vocab.n_words}")
+
+# --- 3.5 编码并填充所有句对 ---
+def encode_and_pad(sentence, vocab, max_len):
+    """编码句子并填充到固定长度"""
+    ids = vocab.encode_sentence(sentence)
+    if len(ids) < max_len:
+        ids = ids + [PAD_IDX] * (max_len - len(ids))
+    else:
+        ids = ids[:max_len-1] + [EOS_IDX]  # 确保以<eos>结尾
+    return ids
+
+# 编码所有句对
+eng_encoded = [encode_and_pad(eng, eng_vocab, MAX_SEQ_LEN) for eng, _ in filtered_pairs]
+spa_encoded = [encode_and_pad(spa, spa_vocab, MAX_SEQ_LEN) for _, spa in filtered_pairs]
+
+eng_encoded = np.array(eng_encoded)
+spa_encoded = np.array(spa_encoded)
+
+print(f"\n编码后英语矩阵: {eng_encoded.shape}")
+print(f"编码后西班牙语矩阵: {spa_encoded.shape}")
+
+# --- 3.6 划分训练集/测试集 ---
+split = int(len(filtered_pairs) * 0.9)  # 90%训练，10%测试
+
+eng_train, eng_test = eng_encoded[:split], eng_encoded[split:]
+spa_train, spa_test = spa_encoded[:split], spa_encoded[split:]
+
+print(f"\n训练集: {len(eng_train)} 对")
+print(f"测试集: {len(eng_test)} 对")
+
+# --- 3.7 创建DataLoader ---
+train_dataset = data.TensorDataset(
+    torch.tensor(eng_train, dtype=torch.long),
+    torch.tensor(spa_train, dtype=torch.long)
+)
+test_dataset = data.TensorDataset(
+    torch.tensor(eng_test, dtype=torch.long),
+    torch.tensor(spa_test, dtype=torch.long)
+)
+train_loader = data.DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
+test_loader  = data.DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=False)
+
+print(f"DataLoader: 训练{len(train_loader)}个batch, 测试{len(test_loader)}个batch")

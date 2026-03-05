@@ -1,0 +1,45 @@
+# Python 虚拟环境
+.venv/
+venv/
+env/
+ENV/
+
+# Python 缓存文件
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Jupyter Notebook 检查点
+.ipynb_checkpoints/
+
+# PyTorch 模型文件（通常体积较大）
+*.pt
+*.pth
+*.ckpt
+
+# 实验输出图表（可选：如需版本控制图表，请删除此部分）
+*.png
+*.jpg
+*.jpeg
+*.svg
+
+# IDE 配置
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 操作系统文件
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 日志文件
+*.log
+
+# 临时文件
+*.tmp
+*.bak
+*.swp

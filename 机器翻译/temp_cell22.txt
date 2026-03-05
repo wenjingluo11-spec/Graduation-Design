@@ -1,0 +1,114 @@
+# ============================================================================
+# 第7.4部分：Seq2Seq 注意力权重可视化
+# ============================================================================
+
+def translate_with_attention(model, src_tensor, max_len=MAX_SEQ_LEN):
+    """
+    翻译句子并收集注意力权重
+
+    参数:
+        model: Seq2Seq模型
+        src_tensor: 源语言张量 (src_len,)
+        max_len: 最大解码长度
+
+    返回:
+        translated_ids: 翻译结果 (list of int)
+        attention_matrix: 注意力权重矩阵 (target_len, source_len)
+    """
+    model.eval()
+    with torch.no_grad():
+        try:
+            src = src_tensor.unsqueeze(0).to(DEVICE)  # (1, src_len)
+            encoder_outputs, hidden = model.encoder(src)
+
+            decoder_input = torch.tensor([SOS_IDX], device=DEVICE)
+            translated_ids = []
+            attention_weights_list = []
+
+            for _ in range(max_len):
+                output, hidden, attn_weights = model.decoder(decoder_input, hidden, encoder_outputs)
+                predicted_id = output.argmax(dim=1).item()
+
+                if predicted_id == EOS_IDX:
+                    break
+
+                translated_ids.append(predicted_id)
+                # attn_weights: (batch, src_len) -> (src_len,)
+                attention_weights_list.append(attn_weights.squeeze(0).cpu().numpy())
+                decoder_input = torch.tensor([predicted_id], device=DEVICE)
+
+            # 堆叠成矩阵: (target_len, source_len)
+            # 修复问题1: 处理空列表的边界情况
+            if not attention_weights_list:
+                return translated_ids, np.zeros((0, encoder_outputs.size(1)))
+            attention_matrix = np.array(attention_weights_list)
+
+        except Exception as e:
+            # 修复问题5: 增强异常处理，捕获更广泛的异常
+            print(f"推理失败: {type(e).__name__}: {e}")
+            # 确保返回形状一致
+            src_len = src_tensor.size(0) if src_tensor is not None else 0
+            return [], np.zeros((0, src_len))
+
+    return translated_ids, attention_matrix
+
+
+def visualize_attention(input_words, output_words, attention_weights, save_path=None,
+                       width_per_word=0.6, height_per_word=0.5):
+    """
+    可视化注意力权重热力图
+
+    参数:
+        input_words: 源语言单词列表 (list of str)
+        output_words: 目标语言单词列表 (list of str)
+        attention_weights: 注意力权重矩阵 (target_len, source_len)
+        save_path: 保存路径 (可选)
+        width_per_word: 每个源词的宽度系数 (默认 0.6)
+        height_per_word: 每个目标词的高度系数 (默认 0.5)
+    """
+    # 修复问题2: 添加输入验证
+    if attention_weights.size == 0 or len(input_words) == 0 or len(output_words) == 0:
+        print("警告: 注意力权重或词列表为空，跳过可视化")
+        return
+    
+    if attention_weights.shape != (len(output_words), len(input_words)):
+        print(f"警告: 注意力矩阵形状 {attention_weights.shape} 与词列表长度不匹配")
+        return
+    
+    # 修复问题4: 将图片尺寸系数参数化
+    width = max(8, len(input_words) * width_per_word)
+    height = max(6, len(output_words) * height_per_word)
+    fig, ax = plt.subplots(figsize=(width, height))
+
+    # 绘制热力图
+    sns.heatmap(
+        attention_weights,
+        xticklabels=input_words,
+        yticklabels=output_words,
+        cmap='YlOrRd',
+        cbar_kws={'label': '注意力权重'},
+        ax=ax,
+        vmin=0,
+        vmax=1,
+        linewidths=0.5,
+        linecolor='gray'
+    )
+
+    ax.set_xlabel('源语言 (英语)', fontsize=13, fontweight='bold')
+    ax.set_ylabel('目标语言 (西班牙语)', fontsize=13, fontweight='bold')
+    ax.set_title('Seq2Seq Bahdanau 注意力权重可视化', fontsize=15, fontweight='bold', pad=20)
+
+    # 旋转x轴标签以便阅读
+    plt.xticks(rotation=45, ha='right', fontsize=11)
+    plt.yticks(rotation=0, fontsize=11)
+
+    plt.tight_layout()
+
+    if save_path:
+        plt.savefig(save_path, dpi=150, bbox_inches='tight')
+        print(f"注意力热力图已保存: {save_path}")
+
+    plt.show()
+
+
+print("注意力可视化函数定义完成！")

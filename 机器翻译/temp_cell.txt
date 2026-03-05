@@ -1,0 +1,192 @@
+# ============================================================================
+# 第7.6部分：错误分析模块
+# ============================================================================
+
+def analyze_bleu_by_length(model, test_pairs, src_vocab, tgt_vocab, device,
+                           translate_fn, length_bins=[5, 10, 15, 20, 30]):
+    """
+    按源句子长度分析 BLEU 分数
+    
+    Args:
+        model: 模型
+        test_pairs: 测试数据集
+        src_vocab: 源语言词汇表
+        tgt_vocab: 目标语言词汇表
+        device: 设备
+        translate_fn: 翻译函数 (translate_sentence 或 translate_sentence_tf)
+        length_bins: 长度区间边界
+    
+    Returns:
+        results: dict with keys 'length_range', 'bleu_4', 'count'
+    """
+    from collections import defaultdict
+    
+    # 按长度分组
+    length_groups = defaultdict(list)
+    
+    for src, tgt in test_pairs:
+        src_len = len(src.split())
+        
+        # 确定属于哪个长度区间
+        for i, upper_bound in enumerate(length_bins):
+            if i == 0:
+                lower_bound = 0
+            else:
+                lower_bound = length_bins[i-1]
+            
+            if lower_bound < src_len <= upper_bound:
+                length_groups[f"{lower_bound+1}-{upper_bound}"].append((src, tgt))
+                break
+        else:
+            # 超过最大长度区间
+            length_groups[f"{length_bins[-1]+1}+"].append((src, tgt))
+    
+    # 计算每组的 BLEU 分数
+    results = {
+        'length_range': [],
+        'bleu_4': [],
+        'count': []
+    }
+    
+    # 按长度区间排序
+    sorted_groups = sorted(length_groups.items(), 
+                          key=lambda x: int(x[0].split('-')[0]))
+    
+    for length_range, pairs in sorted_groups:
+        if len(pairs) == 0:
+            continue
+        
+        # 计算该组的 BLEU 分数
+        references = [[ref.split()] for _, ref in pairs]
+        hypotheses = []
+        
+        for src, _ in pairs:
+            translated = translate_fn(model, src, src_vocab, tgt_vocab, device)
+            hypotheses.append(translated.split())
+        
+        # 使用 compute_bleu_scores 函数计算 BLEU-4
+        bleu_scores = compute_bleu_scores(references, hypotheses)
+
+        results['length_range'].append(length_range)
+        results['bleu_4'].append(bleu_scores['bleu_4'])
+        results['count'].append(len(pairs))
+    
+    return results
+
+
+def plot_bleu_by_length(results, model_name, save_path=None):
+    """
+    绘制 BLEU 分数随句子长度变化的图表
+    
+    使用双 y 轴:
+    - 左 y 轴: BLEU-4 分数 (柱状图)
+    - 右 y 轴: 样本数量 (折线图)
+    """
+    fig, ax1 = plt.subplots(figsize=(12, 6))
+    
+    x = np.arange(len(results['length_range']))
+    
+    # 左 y 轴：BLEU 分数柱状图
+    color1 = 'steelblue'
+    ax1.set_xlabel('源句子长度区间', fontsize=12)
+    ax1.set_ylabel('BLEU-4 分数', color=color1, fontsize=12)
+    bars = ax1.bar(x, results['bleu_4'], color=color1, alpha=0.7, label='BLEU-4')
+    ax1.tick_params(axis='y', labelcolor=color1)
+    ax1.set_ylim([0, 1.0])
+    ax1.grid(axis='y', alpha=0.3)
+    
+    # 在柱状图上标注数值
+    for i, v in enumerate(results['bleu_4']):
+        ax1.text(i, v + 0.02, f'{v:.3f}', ha='center', va='bottom', fontsize=9)
+    
+    # 右 y 轴：样本数量折线图
+    ax2 = ax1.twinx()
+    color2 = 'coral'
+    ax2.set_ylabel('样本数量', color=color2, fontsize=12)
+    line = ax2.plot(x, results['count'], color=color2, marker='o', 
+                    linewidth=2, markersize=8, label='样本数量')
+    ax2.tick_params(axis='y', labelcolor=color2)
+    
+    # 在折线图上标注数值
+    for i, v in enumerate(results['count']):
+        ax2.text(i, v + max(results['count'])*0.02, str(v), 
+                ha='center', va='bottom', fontsize=9, color=color2)
+    
+    # 设置 x 轴标签
+    ax1.set_xticks(x)
+    ax1.set_xticklabels(results['length_range'], rotation=45, ha='right')
+    
+    # 标题
+    plt.title(f'{model_name} - BLEU 分数随句子长度变化', fontsize=14, pad=20)
+    
+    # 图例
+    lines1, labels1 = ax1.get_legend_handles_labels()
+    lines2, labels2 = ax2.get_legend_handles_labels()
+    ax1.legend(lines1 + lines2, labels1 + labels2, loc='upper right')
+    
+    plt.tight_layout()
+    
+    if save_path:
+        plt.savefig(save_path, dpi=300, bbox_inches='tight')
+        print(f"图表已保存至: {save_path}")
+    
+    plt.show()
+
+
+def find_best_worst_cases(model, test_pairs, src_vocab, tgt_vocab, device,
+                          translate_fn, n=5):
+    """
+    找出翻译最好和最差的案例
+    
+    Returns:
+        best_cases: list of dicts with keys 'source', 'reference', 'hypothesis', 'bleu_4'
+        worst_cases: list of dicts with keys 'source', 'reference', 'hypothesis', 'bleu_4'
+    """
+    cases = []
+    
+    print(f"正在分析 {len(test_pairs)} 个测试样本...")
+    
+    for i, (src, ref) in enumerate(test_pairs):
+        if (i + 1) % 100 == 0:
+            print(f"  进度: {i+1}/{len(test_pairs)}")
+        
+        # 翻译
+        hyp = translate_fn(model, src, src_vocab, tgt_vocab, device)
+        
+        # 计算 BLEU-4
+        reference = [ref.split()]
+        hypothesis = hyp.split()
+        bleu_scores = compute_bleu_scores([reference], [hypothesis])
+
+        cases.append({
+            'source': src,
+            'reference': ref,
+            'hypothesis': hyp,
+            'bleu_4': bleu_scores['bleu_4']
+        })
+    
+    # 按 BLEU 分数排序
+    cases_sorted = sorted(cases, key=lambda x: x['bleu_4'], reverse=True)
+    
+    best_cases = cases_sorted[:n]
+    worst_cases = cases_sorted[-n:][::-1]  # 反转，从最差到次差
+    
+    return best_cases, worst_cases
+
+
+def display_translation_cases(cases, title):
+    """
+    格式化展示翻译案例
+    """
+    print("\n" + "=" * 80)
+    print(title)
+    print("=" * 80)
+    
+    for i, case in enumerate(cases, 1):
+        print(f"\n【案例 {i}】 BLEU-4: {case['bleu_4']:.4f}")
+        print(f"  源句子:   {case['source']}")
+        print(f"  参考翻译: {case['reference']}")
+        print(f"  模型翻译: {case['hypothesis']}")
+        print("-" * 80)
+
+print("错误分析函数定义完成！")
