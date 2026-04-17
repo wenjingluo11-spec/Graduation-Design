@@ -1,0 +1,12 @@
+﻿model_decode,error_tag,count
+seq2seq_beam,semantic_or_grammar_error,79
+seq2seq_beam,low_keyword_overlap,1
+seq2seq_greedy,semantic_or_grammar_error,79
+seq2seq_greedy,low_keyword_overlap,1
+transformer_beam,semantic_or_grammar_error,76
+transformer_beam,under_translation,2
+transformer_beam,low_keyword_overlap,1
+transformer_beam,over_translation,1
+transformer_greedy,semantic_or_grammar_error,78
+transformer_greedy,over_translation,1
+transformer_greedy,under_translation,1

@@ -1,0 +1,321 @@
+﻿source_spanish,reference_english,model_decode,prediction,token_overlap,length_ratio,error_tag
+me pareció muy divertida .,i thought it was a lot of fun .,seq2seq_beam,i was terribly very amusing .,0.3333333333333333,0.6666666666666666,semantic_or_grammar_error
+me pareció muy divertida .,i thought it was a lot of fun .,seq2seq_greedy,i was terribly very amusing .,0.3333333333333333,0.6666666666666666,semantic_or_grammar_error
+me pareció muy divertida .,i thought it was a lot of fun .,transformer_beam,i found a very amusing .,0.3333333333333333,0.6666666666666666,semantic_or_grammar_error
+me pareció muy divertida .,i thought it was a lot of fun .,transformer_greedy,i found a very amusing .,0.3333333333333333,0.6666666666666666,semantic_or_grammar_error
+tom abrió la puerta y entró .,tom opened the door and walked in .,seq2seq_beam,tom opened the door and door .,0.75,0.875,semantic_or_grammar_error
+tom abrió la puerta y entró .,tom opened the door and walked in .,seq2seq_greedy,tom opened the door and went into .,0.75,1.0,semantic_or_grammar_error
+tom abrió la puerta y entró .,tom opened the door and walked in .,transformer_beam,tom opened the door and opened the door .,0.75,1.125,semantic_or_grammar_error
+tom abrió la puerta y entró .,tom opened the door and walked in .,transformer_greedy,tom opened the door and opened the door .,0.75,1.125,semantic_or_grammar_error
+el placer es un pecado y a veces el pecado es un placer .,pleasure s a sin and sometimes sin s a pleasure .,seq2seq_beam,the a is a and to break a a marriage .,0.42857142857142855,1.0,semantic_or_grammar_error
+el placer es un pecado y a veces el pecado es un placer .,pleasure s a sin and sometimes sin s a pleasure .,seq2seq_greedy,the artist whose a and to break a a is a a .,0.42857142857142855,1.1818181818181819,semantic_or_grammar_error
+el placer es un pecado y a veces el pecado es un placer .,pleasure s a sin and sometimes sin s a pleasure .,transformer_beam,the sometimes it s a pleasure and adopted .,0.8571428571428571,0.8181818181818182,semantic_or_grammar_error
+el placer es un pecado y a veces el pecado es un placer .,pleasure s a sin and sometimes sin s a pleasure .,transformer_greedy,the sometimes it s a pleasure and adopted .,0.8571428571428571,0.8181818181818182,semantic_or_grammar_error
+¿ qué ha pasado con la luz ?,what s happened to the light ?,seq2seq_beam,what s with with the light ?,0.7142857142857143,1.0,semantic_or_grammar_error
+¿ qué ha pasado con la luz ?,what s happened to the light ?,seq2seq_greedy,what s with with the light ?,0.7142857142857143,1.0,semantic_or_grammar_error
+¿ qué ha pasado con la luz ?,what s happened to the light ?,transformer_beam,what has happened with the light last night ?,0.7142857142857143,1.2857142857142858,semantic_or_grammar_error
+¿ qué ha pasado con la luz ?,what s happened to the light ?,transformer_greedy,what has happened to the tower ?,0.7142857142857143,1.0,semantic_or_grammar_error
+yo jamás haría una pregunta tan infantil .,i d never ask such a childish question .,seq2seq_beam,i d never a a question as you .,0.6666666666666666,1.0,semantic_or_grammar_error
+yo jamás haría una pregunta tan infantil .,i d never ask such a childish question .,seq2seq_greedy,i would never a a as as a .,0.4444444444444444,1.0,semantic_or_grammar_error
+yo jamás haría una pregunta tan infantil .,i d never ask such a childish question .,transformer_beam,i d never such a joke .,0.6666666666666666,0.7777777777777778,semantic_or_grammar_error
+yo jamás haría una pregunta tan infantil .,i d never ask such a childish question .,transformer_greedy,i never such a joke .,0.5555555555555556,0.6666666666666666,semantic_or_grammar_error
+esta ley solo afecta a los extranjeros .,this law only affects foreigners .,seq2seq_beam,this law only only the foreigners .,0.8333333333333334,1.1666666666666667,semantic_or_grammar_error
+esta ley solo afecta a los extranjeros .,this law only affects foreigners .,seq2seq_greedy,this law only only the foreigners .,0.8333333333333334,1.1666666666666667,semantic_or_grammar_error
+esta ley solo afecta a los extranjeros .,this law only affects foreigners .,transformer_beam,this television set .,0.3333333333333333,0.6666666666666666,semantic_or_grammar_error
+esta ley solo afecta a los extranjeros .,this law only affects foreigners .,transformer_greedy,this television set .,0.3333333333333333,0.6666666666666666,semantic_or_grammar_error
+el trabajo hay que terminarlo sobre la marcha .,the work must be completed at once .,seq2seq_beam,there is a urgent need on that time .,0.125,1.125,low_keyword_overlap
+el trabajo hay que terminarlo sobre la marcha .,the work must be completed at once .,seq2seq_greedy,there is a better for us the the .,0.25,1.125,semantic_or_grammar_error
+el trabajo hay que terminarlo sobre la marcha .,the work must be completed at once .,transformer_beam,there s lots of work on the job .,0.375,1.125,semantic_or_grammar_error
+el trabajo hay que terminarlo sobre la marcha .,the work must be completed at once .,transformer_greedy,there is to finish the work on the job .,0.375,1.25,semantic_or_grammar_error
+le felicito por su triunfo .,i congratulate you on your success .,seq2seq_beam,i let him about his way .,0.2857142857142857,1.0,semantic_or_grammar_error
+le felicito por su triunfo .,i congratulate you on your success .,seq2seq_greedy,i ll see you on his .,0.5714285714285714,1.0,semantic_or_grammar_error
+le felicito por su triunfo .,i congratulate you on your success .,transformer_beam,they caused by his request .,0.14285714285714285,0.8571428571428571,low_keyword_overlap
+le felicito por su triunfo .,i congratulate you on your success .,transformer_greedy,they re going to blame me for your request .,0.2857142857142857,1.4285714285714286,semantic_or_grammar_error
+tom quiere ser admirado .,tom wants to be admired .,seq2seq_beam,tom wants to be be .,0.8333333333333334,1.0,semantic_or_grammar_error
+tom quiere ser admirado .,tom wants to be admired .,seq2seq_greedy,tom wants to be be .,0.8333333333333334,1.0,semantic_or_grammar_error
+tom quiere ser admirado .,tom wants to be admired .,transformer_beam,tom wants to be all your own .,0.8333333333333334,1.3333333333333333,semantic_or_grammar_error
+tom quiere ser admirado .,tom wants to be admired .,transformer_greedy,tom wants to be all your own .,0.8333333333333334,1.3333333333333333,semantic_or_grammar_error
+no creo que pase esta noche .,i don t think it s going to happen tonight .,seq2seq_beam,i don t believe it ll accept tonight .,0.5454545454545454,0.8181818181818182,semantic_or_grammar_error
+no creo que pase esta noche .,i don t think it s going to happen tonight .,seq2seq_greedy,i don t believe it ll accept tonight .,0.5454545454545454,0.8181818181818182,semantic_or_grammar_error
+no creo que pase esta noche .,i don t think it s going to happen tonight .,transformer_beam,i don t think this matter .,0.45454545454545453,0.6363636363636364,semantic_or_grammar_error
+no creo que pase esta noche .,i don t think it s going to happen tonight .,transformer_greedy,i don t think this matter .,0.45454545454545453,0.6363636363636364,semantic_or_grammar_error
+no sé holandés . es difícil .,i don t understand dutch . it s difficult .,seq2seq_beam,i don t know that it is difficult .,0.6666666666666666,0.9,semantic_or_grammar_error
+no sé holandés . es difícil .,i don t understand dutch . it s difficult .,seq2seq_greedy,i don t know that it is difficult .,0.6666666666666666,0.9,semantic_or_grammar_error
+no sé holandés . es difícil .,i don t understand dutch . it s difficult .,transformer_beam,i don t know it s difficult .,0.7777777777777778,0.8,semantic_or_grammar_error
+no sé holandés . es difícil .,i don t understand dutch . it s difficult .,transformer_greedy,i don t know it s difficult .,0.7777777777777778,0.8,semantic_or_grammar_error
+no dejé la puerta abierta .,i didn t leave the door open .,seq2seq_beam,i won t the door open .,0.75,0.875,semantic_or_grammar_error
+no dejé la puerta abierta .,i didn t leave the door open .,seq2seq_greedy,i won t the door open .,0.75,0.875,semantic_or_grammar_error
+no dejé la puerta abierta .,i didn t leave the door open .,transformer_beam,i left the door open .,0.625,0.75,semantic_or_grammar_error
+no dejé la puerta abierta .,i didn t leave the door open .,transformer_greedy,i left the door open .,0.625,0.75,semantic_or_grammar_error
+no hablabas en serio ¿ o sí ?,you weren t serious were you ?,seq2seq_beam,you don t trust as are you ?,0.5,1.1428571428571428,semantic_or_grammar_error
+no hablabas en serio ¿ o sí ?,you weren t serious were you ?,seq2seq_greedy,not t trust tom is yes ?,0.3333333333333333,1.0,semantic_or_grammar_error
+no hablabas en serio ¿ o sí ?,you weren t serious were you ?,transformer_beam,you re not serious or not ?,0.5,1.0,semantic_or_grammar_error
+no hablabas en serio ¿ o sí ?,you weren t serious were you ?,transformer_greedy,you re not serious or not ?,0.5,1.0,semantic_or_grammar_error
+tom es malicioso .,tom is mischievous .,seq2seq_beam,tom is a .,0.75,1.0,semantic_or_grammar_error
+tom es malicioso .,tom is mischievous .,seq2seq_greedy,tom is a .,0.75,1.0,semantic_or_grammar_error
+tom es malicioso .,tom is mischievous .,transformer_beam,tom is remarkable .,0.75,1.0,semantic_or_grammar_error
+tom es malicioso .,tom is mischievous .,transformer_greedy,tom is very beautiful .,0.75,1.25,semantic_or_grammar_error
+si no conoces las respuestas adivina .,if you don t know the answers guess .,seq2seq_beam,if you don t know that a hopeless view .,0.6666666666666666,1.1111111111111112,semantic_or_grammar_error
+si no conoces las respuestas adivina .,if you don t know the answers guess .,seq2seq_greedy,if you don t know that out a hopeless .,0.6666666666666666,1.1111111111111112,semantic_or_grammar_error
+si no conoces las respuestas adivina .,if you don t know the answers guess .,transformer_beam,you don t know if you broke the door .,0.7777777777777778,1.1111111111111112,semantic_or_grammar_error
+si no conoces las respuestas adivina .,if you don t know the answers guess .,transformer_greedy,you don t know if you broke the door .,0.7777777777777778,1.1111111111111112,semantic_or_grammar_error
+creo que finalmente me voy a jubilar .,i think i am finally going to retire .,seq2seq_beam,i think i finally going to faint .,0.75,0.8888888888888888,semantic_or_grammar_error
+creo que finalmente me voy a jubilar .,i think i am finally going to retire .,seq2seq_greedy,i think i finally going to faint .,0.75,0.8888888888888888,semantic_or_grammar_error
+creo que finalmente me voy a jubilar .,i think i am finally going to retire .,transformer_beam,i think i m going to be kidding .,0.625,1.0,semantic_or_grammar_error
+creo que finalmente me voy a jubilar .,i think i am finally going to retire .,transformer_greedy,i think i m going to be kidding .,0.625,1.0,semantic_or_grammar_error
+solo necesito cien dólares .,i only need one hundred dollars .,seq2seq_beam,i just need to one hundred dollars .,0.8571428571428571,1.1428571428571428,semantic_or_grammar_error
+solo necesito cien dólares .,i only need one hundred dollars .,seq2seq_greedy,i just need to one hundred dollars .,0.8571428571428571,1.1428571428571428,semantic_or_grammar_error
+solo necesito cien dólares .,i only need one hundred dollars .,transformer_beam,i just need only hundred dollars .,0.8571428571428571,1.0,semantic_or_grammar_error
+solo necesito cien dólares .,i only need one hundred dollars .,transformer_greedy,i just need only hundred dollars .,0.8571428571428571,1.0,semantic_or_grammar_error
+la vacuna del tétano me dolió más que el mordisco del perro .,the tetanus shot hurt more than the dog bite .,seq2seq_beam,the vaccination of the ice age the dog bit of the dog .,0.3333333333333333,1.3,semantic_or_grammar_error
+la vacuna del tétano me dolió más que el mordisco del perro .,the tetanus shot hurt more than the dog bite .,seq2seq_greedy,the vaccination of the ice age the dog is caught after the dog .,0.3333333333333333,1.4,semantic_or_grammar_error
+la vacuna del tétano me dolió más que el mordisco del perro .,the tetanus shot hurt more than the dog bite .,transformer_beam,the dog gave me that the one the dog more than the dog .,0.5555555555555556,1.4,semantic_or_grammar_error
+la vacuna del tétano me dolió más que el mordisco del perro .,the tetanus shot hurt more than the dog bite .,transformer_greedy,the dog recommended that the only the dog gave me that the one .,0.3333333333333333,1.4,semantic_or_grammar_error
+¿ no lamentas haberte hecho ese tatu ?,don t you regret getting that tattoo ?,seq2seq_beam,didn t you like to that that concert ?,0.5,1.125,semantic_or_grammar_error
+¿ no lamentas haberte hecho ese tatu ?,don t you regret getting that tattoo ?,seq2seq_greedy,didn t you like that that that would you that ?,0.5,1.375,semantic_or_grammar_error
+¿ no lamentas haberte hecho ese tatu ?,don t you regret getting that tattoo ?,transformer_beam,don t you think that woman ?,0.625,0.875,semantic_or_grammar_error
+¿ no lamentas haberte hecho ese tatu ?,don t you regret getting that tattoo ?,transformer_greedy,that s all you don t you think that along ?,0.625,1.375,semantic_or_grammar_error
+lo estás haciendo bien .,you re doing fine .,seq2seq_beam,you re doing fine .,1.0,1.0,semantic_or_grammar_error
+lo estás haciendo bien .,you re doing fine .,seq2seq_greedy,you re doing fine .,1.0,1.0,semantic_or_grammar_error
+lo estás haciendo bien .,you re doing fine .,transformer_beam,you re doing fine .,1.0,1.0,semantic_or_grammar_error
+lo estás haciendo bien .,you re doing fine .,transformer_greedy,you re doing fine .,1.0,1.0,semantic_or_grammar_error
+estoy estudiando .,i m studying .,seq2seq_beam,i m studying .,1.0,1.0,semantic_or_grammar_error
+estoy estudiando .,i m studying .,seq2seq_greedy,i m studying .,1.0,1.0,semantic_or_grammar_error
+estoy estudiando .,i m studying .,transformer_beam,i m studying .,1.0,1.0,semantic_or_grammar_error
+estoy estudiando .,i m studying .,transformer_greedy,i m studying .,1.0,1.0,semantic_or_grammar_error
+yo la reconocí en el momento en que la vi .,i recognized her as soon as i saw her .,seq2seq_beam,i noticed her the moment i saw .,0.5714285714285714,0.8,semantic_or_grammar_error
+yo la reconocí en el momento en que la vi .,i recognized her as soon as i saw her .,seq2seq_greedy,i noticed her the moment i saw .,0.5714285714285714,0.8,semantic_or_grammar_error
+yo la reconocí en el momento en que la vi .,i recognized her as soon as i saw her .,transformer_beam,i recognized her the moment i recognized her .,0.5714285714285714,0.9,semantic_or_grammar_error
+yo la reconocí en el momento en que la vi .,i recognized her as soon as i saw her .,transformer_greedy,i recognized her the moment i recognized her .,0.5714285714285714,0.9,semantic_or_grammar_error
+no puedo creer que tom aceptara nuestra oferta .,i can t believe tom accepted our offer .,seq2seq_beam,i can t believe tom is our way .,0.7777777777777778,1.0,semantic_or_grammar_error
+no puedo creer que tom aceptara nuestra oferta .,i can t believe tom accepted our offer .,seq2seq_greedy,i can t believe tom is our way .,0.7777777777777778,1.0,semantic_or_grammar_error
+no puedo creer que tom aceptara nuestra oferta .,i can t believe tom accepted our offer .,transformer_beam,i can t believe tom would our offer .,0.8888888888888888,1.0,semantic_or_grammar_error
+no puedo creer que tom aceptara nuestra oferta .,i can t believe tom accepted our offer .,transformer_greedy,i can t believe tom would our offer .,0.8888888888888888,1.0,semantic_or_grammar_error
+esta es para mi amiga .,this is for my friend .,seq2seq_beam,this is my friend .,0.8333333333333334,0.8333333333333334,semantic_or_grammar_error
+esta es para mi amiga .,this is for my friend .,seq2seq_greedy,this is my friend .,0.8333333333333334,0.8333333333333334,semantic_or_grammar_error
+esta es para mi amiga .,this is for my friend .,transformer_beam,this is for my friend .,1.0,1.0,semantic_or_grammar_error
+esta es para mi amiga .,this is for my friend .,transformer_greedy,this is for me .,0.6666666666666666,0.8333333333333334,semantic_or_grammar_error
+¿ me pueden dar algo de agua ?,can i have some water ?,seq2seq_beam,can you give me some water ?,0.6666666666666666,1.1666666666666667,semantic_or_grammar_error
+¿ me pueden dar algo de agua ?,can i have some water ?,seq2seq_greedy,can you give some water ?,0.6666666666666666,1.0,semantic_or_grammar_error
+¿ me pueden dar algo de agua ?,can i have some water ?,transformer_beam,can you give me some water ?,0.6666666666666666,1.1666666666666667,semantic_or_grammar_error
+¿ me pueden dar algo de agua ?,can i have some water ?,transformer_greedy,can i have something to drink water ?,0.8333333333333334,1.3333333333333333,semantic_or_grammar_error
+¿ dónde aprendiste a conducir tan bien ?,where did you learn to drive so well ?,seq2seq_beam,where did you learn how to drive well ?,0.8888888888888888,1.0,semantic_or_grammar_error
+¿ dónde aprendiste a conducir tan bien ?,where did you learn to drive so well ?,seq2seq_greedy,where did you learn how to drive well ?,0.8888888888888888,1.0,semantic_or_grammar_error
+¿ dónde aprendiste a conducir tan bien ?,where did you learn to drive so well ?,transformer_beam,where did you learn to drive so slow ?,0.8888888888888888,1.0,semantic_or_grammar_error
+¿ dónde aprendiste a conducir tan bien ?,where did you learn to drive so well ?,transformer_greedy,where did you learn to drive so slow ?,0.8888888888888888,1.0,semantic_or_grammar_error
+¿ va a ir ?,will you go ?,seq2seq_beam,will he go ?,0.75,1.0,semantic_or_grammar_error
+¿ va a ir ?,will you go ?,seq2seq_greedy,will he go ?,0.75,1.0,semantic_or_grammar_error
+¿ va a ir ?,will you go ?,transformer_beam,is it going to go to go ?,0.5,2.0,over_translation
+¿ va a ir ?,will you go ?,transformer_greedy,is it going to go to go ?,0.5,2.0,over_translation
+tom se sentó junto a maría en el piano .,tom sat next to mary at the piano .,seq2seq_beam,tom sat down next to mary on the piano .,0.8888888888888888,1.1111111111111112,semantic_or_grammar_error
+tom se sentó junto a maría en el piano .,tom sat next to mary at the piano .,seq2seq_greedy,tom sat next to mary on the piano .,0.8888888888888888,1.0,semantic_or_grammar_error
+tom se sentó junto a maría en el piano .,tom sat next to mary at the piano .,transformer_beam,tom sat down on the piano .,0.5555555555555556,0.7777777777777778,semantic_or_grammar_error
+tom se sentó junto a maría en el piano .,tom sat next to mary at the piano .,transformer_greedy,tom sat down on the piano .,0.5555555555555556,0.7777777777777778,semantic_or_grammar_error
+¿ confiáis en mí ?,do you trust me ?,seq2seq_beam,were you coming to me ?,0.6,1.2,semantic_or_grammar_error
+¿ confiáis en mí ?,do you trust me ?,seq2seq_greedy,were you coming to me ?,0.6,1.2,semantic_or_grammar_error
+¿ confiáis en mí ?,do you trust me ?,transformer_beam,are you in me ?,0.6,1.0,semantic_or_grammar_error
+¿ confiáis en mí ?,do you trust me ?,transformer_greedy,are you in me ?,0.6,1.0,semantic_or_grammar_error
+podría nevar .,it may snow .,seq2seq_beam,it may be up .,0.75,1.25,semantic_or_grammar_error
+podría nevar .,it may snow .,seq2seq_greedy,it may be .,0.75,1.0,semantic_or_grammar_error
+podría nevar .,it may snow .,transformer_beam,it may snow .,1.0,1.0,semantic_or_grammar_error
+podría nevar .,it may snow .,transformer_greedy,it may snow .,1.0,1.0,semantic_or_grammar_error
+yo iré ahí .,i ll go there .,seq2seq_beam,i ll go there .,1.0,1.0,semantic_or_grammar_error
+yo iré ahí .,i ll go there .,seq2seq_greedy,i ll go there .,1.0,1.0,semantic_or_grammar_error
+yo iré ahí .,i ll go there .,transformer_beam,i ll go there .,1.0,1.0,semantic_or_grammar_error
+yo iré ahí .,i ll go there .,transformer_greedy,i ll go there .,1.0,1.0,semantic_or_grammar_error
+te daré un buen consejo .,i ll give you a good piece of advice .,seq2seq_beam,i ll give you a piece of advice .,0.9,0.9,semantic_or_grammar_error
+te daré un buen consejo .,i ll give you a good piece of advice .,seq2seq_greedy,i ll give you a piece of advice .,0.9,0.9,semantic_or_grammar_error
+te daré un buen consejo .,i ll give you a good piece of advice .,transformer_beam,i ll give you a good advice .,0.8,0.8,semantic_or_grammar_error
+te daré un buen consejo .,i ll give you a good piece of advice .,transformer_greedy,i ll give you a good advice .,0.8,0.8,semantic_or_grammar_error
+estuve con una familia estadounidense .,i stayed with an american family .,seq2seq_beam,i was with a terrible family .,0.5714285714285714,1.0,semantic_or_grammar_error
+estuve con una familia estadounidense .,i stayed with an american family .,seq2seq_greedy,i was with a terrible family .,0.5714285714285714,1.0,semantic_or_grammar_error
+estuve con una familia estadounidense .,i stayed with an american family .,transformer_beam,i was an orphan with a member of family .,0.7142857142857143,1.4285714285714286,semantic_or_grammar_error
+estuve con una familia estadounidense .,i stayed with an american family .,transformer_greedy,i was an orphan with a member of family .,0.7142857142857143,1.4285714285714286,semantic_or_grammar_error
+ella fue a la escuela a pesar de que le dolía el pie .,she went to school in spite of the pain in her leg .,seq2seq_beam,she went to school though she left foot .,0.4166666666666667,0.6923076923076923,semantic_or_grammar_error
+ella fue a la escuela a pesar de que le dolía el pie .,she went to school in spite of the pain in her leg .,seq2seq_greedy,she went to school though she left foot .,0.4166666666666667,0.6923076923076923,semantic_or_grammar_error
+ella fue a la escuela a pesar de que le dolía el pie .,she went to school in spite of the pain in her leg .,transformer_beam,she went to the school on her foot .,0.5833333333333334,0.6923076923076923,semantic_or_grammar_error
+ella fue a la escuela a pesar de que le dolía el pie .,she went to school in spite of the pain in her leg .,transformer_greedy,she was at school on her absence .,0.3333333333333333,0.6153846153846154,semantic_or_grammar_error
+nunca he conocido a nadie que no le guste el chocolate .,i ve never met anyone who doesn t like chocolate .,seq2seq_beam,i ve never met someone like it s like it .,0.5454545454545454,1.0,semantic_or_grammar_error
+nunca he conocido a nadie que no le guste el chocolate .,i ve never met anyone who doesn t like chocolate .,seq2seq_greedy,i ve never met someone like the like it .,0.5454545454545454,0.9090909090909091,semantic_or_grammar_error
+nunca he conocido a nadie que no le guste el chocolate .,i ve never met anyone who doesn t like chocolate .,transformer_beam,i ve never met the chocolate .,0.5454545454545454,0.6363636363636364,semantic_or_grammar_error
+nunca he conocido a nadie que no le guste el chocolate .,i ve never met anyone who doesn t like chocolate .,transformer_greedy,i had never told the chocolate .,0.36363636363636365,0.6363636363636364,semantic_or_grammar_error
+afloje usted un poco la venda .,loosen the bandage a little .,seq2seq_beam,it a little a little .,0.5,1.0,semantic_or_grammar_error
+afloje usted un poco la venda .,loosen the bandage a little .,seq2seq_greedy,play a little a little .,0.5,1.0,semantic_or_grammar_error
+afloje usted un poco la venda .,loosen the bandage a little .,transformer_beam,you re a little girl .,0.5,1.0,semantic_or_grammar_error
+afloje usted un poco la venda .,loosen the bandage a little .,transformer_greedy,you are a little the problem .,0.6666666666666666,1.1666666666666667,semantic_or_grammar_error
+según la leyenda esta casa está embrujada .,legend has it that this house is haunted .,seq2seq_beam,according to the the this house is my house .,0.4444444444444444,1.1111111111111112,semantic_or_grammar_error
+según la leyenda esta casa está embrujada .,legend has it that this house is haunted .,seq2seq_greedy,according to the the this house is easily .,0.4444444444444444,1.0,semantic_or_grammar_error
+según la leyenda esta casa está embrujada .,legend has it that this house is haunted .,transformer_beam,according to this is the house .,0.4444444444444444,0.7777777777777778,semantic_or_grammar_error
+según la leyenda esta casa está embrujada .,legend has it that this house is haunted .,transformer_greedy,according to this is the house .,0.4444444444444444,0.7777777777777778,semantic_or_grammar_error
+me pasé todo el día leyendo una novela .,i spent the whole day reading a novel .,seq2seq_beam,i spent the entire day for a novel .,0.7777777777777778,1.0,semantic_or_grammar_error
+me pasé todo el día leyendo una novela .,i spent the whole day reading a novel .,seq2seq_greedy,i spent the day day a novel .,0.7777777777777778,0.8888888888888888,semantic_or_grammar_error
+me pasé todo el día leyendo una novela .,i spent the whole day reading a novel .,transformer_beam,i spent the whole day long .,0.6666666666666666,0.7777777777777778,semantic_or_grammar_error
+me pasé todo el día leyendo una novela .,i spent the whole day reading a novel .,transformer_greedy,i spent the whole day long .,0.6666666666666666,0.7777777777777778,semantic_or_grammar_error
+nadie vio eso .,no one saw that .,seq2seq_beam,nobody saw that .,0.6,0.8,semantic_or_grammar_error
+nadie vio eso .,no one saw that .,seq2seq_greedy,nobody saw that .,0.6,0.8,semantic_or_grammar_error
+nadie vio eso .,no one saw that .,transformer_beam,no one saw it .,0.8,1.0,semantic_or_grammar_error
+nadie vio eso .,no one saw that .,transformer_greedy,no one saw it .,0.8,1.0,semantic_or_grammar_error
+no estoy en contra de la ilegalización de las armas .,i m not against outlawing guns .,seq2seq_beam,i m not against the suburbs of weapons .,0.7142857142857143,1.2857142857142858,semantic_or_grammar_error
+no estoy en contra de la ilegalización de las armas .,i m not against outlawing guns .,seq2seq_greedy,i m not against the suburbs of weapons .,0.7142857142857143,1.2857142857142858,semantic_or_grammar_error
+no estoy en contra de la ilegalización de las armas .,i m not against outlawing guns .,transformer_beam,i m not against the reason .,0.7142857142857143,1.0,semantic_or_grammar_error
+no estoy en contra de la ilegalización de las armas .,i m not against outlawing guns .,transformer_greedy,i m not against the reason .,0.7142857142857143,1.0,semantic_or_grammar_error
+el co tiene mucho que ver con el llamado efecto invernadero .,co has a lot to do with the so called greenhouse effect .,seq2seq_beam,the language has a lot to watch with the same purse .,0.5384615384615384,0.9230769230769231,semantic_or_grammar_error
+el co tiene mucho que ver con el llamado efecto invernadero .,co has a lot to do with the so called greenhouse effect .,seq2seq_greedy,the boy talks a lot to watch with the same purse .,0.46153846153846156,0.9230769230769231,semantic_or_grammar_error
+el co tiene mucho que ver con el llamado efecto invernadero .,co has a lot to do with the so called greenhouse effect .,transformer_beam,the mailman has a lot of seeing the deal .,0.38461538461538464,0.7692307692307693,semantic_or_grammar_error
+el co tiene mucho que ver con el llamado efecto invernadero .,co has a lot to do with the so called greenhouse effect .,transformer_greedy,the mailman has a lot of watching tv .,0.38461538461538464,0.6923076923076923,semantic_or_grammar_error
+¿ cuántos huevos pone esta gallina por semana ?,how many eggs does this hen lay each week ?,seq2seq_beam,how many eggs do this this week ?,0.6,0.8,semantic_or_grammar_error
+¿ cuántos huevos pone esta gallina por semana ?,how many eggs does this hen lay each week ?,seq2seq_greedy,how many eggs do this this week ?,0.6,0.8,semantic_or_grammar_error
+¿ cuántos huevos pone esta gallina por semana ?,how many eggs does this hen lay each week ?,transformer_beam,how many christmas cards do you praised this week ?,0.5,1.0,semantic_or_grammar_error
+¿ cuántos huevos pone esta gallina por semana ?,how many eggs does this hen lay each week ?,transformer_greedy,how many christmas cards do you praised this week ?,0.5,1.0,semantic_or_grammar_error
+él bebe café antes del trabajo .,he drinks coffee before work .,seq2seq_beam,he drinks coffee before the work .,1.0,1.1666666666666667,semantic_or_grammar_error
+él bebe café antes del trabajo .,he drinks coffee before work .,seq2seq_greedy,he drinks coffee before the work .,1.0,1.1666666666666667,semantic_or_grammar_error
+él bebe café antes del trabajo .,he drinks coffee before work .,transformer_beam,he drinks coffee before .,0.8333333333333334,0.8333333333333334,semantic_or_grammar_error
+él bebe café antes del trabajo .,he drinks coffee before work .,transformer_greedy,he drinks coffee before .,0.8333333333333334,0.8333333333333334,semantic_or_grammar_error
+tiene la edad suficiente como para manejar un auto .,he is old enough to drive a car .,seq2seq_beam,he s old enough to drive a car .,0.8888888888888888,1.0,semantic_or_grammar_error
+tiene la edad suficiente como para manejar un auto .,he is old enough to drive a car .,seq2seq_greedy,he s old enough to drive a car .,0.8888888888888888,1.0,semantic_or_grammar_error
+tiene la edad suficiente como para manejar un auto .,he is old enough to drive a car .,transformer_beam,a car is how old enough to drive a car .,0.8888888888888888,1.2222222222222223,semantic_or_grammar_error
+tiene la edad suficiente como para manejar un auto .,he is old enough to drive a car .,transformer_greedy,a car is how old enough to drive a car .,0.8888888888888888,1.2222222222222223,semantic_or_grammar_error
+él se baña todas las mañanas .,he takes a bath every morning .,seq2seq_beam,he has a bath every morning .,0.8571428571428571,1.0,semantic_or_grammar_error
+él se baña todas las mañanas .,he takes a bath every morning .,seq2seq_greedy,he has a bath every morning .,0.8571428571428571,1.0,semantic_or_grammar_error
+él se baña todas las mañanas .,he takes a bath every morning .,transformer_beam,he takes a bath every morning .,1.0,1.0,semantic_or_grammar_error
+él se baña todas las mañanas .,he takes a bath every morning .,transformer_greedy,he takes a bath every morning .,1.0,1.0,semantic_or_grammar_error
+han pasado diez días desde que mi novio quedó en prisión .,it s been days since my boyfriend went to jail .,seq2seq_beam,it s been ten years since i have stayed on my trip .,0.5454545454545454,1.1818181818181819,semantic_or_grammar_error
+han pasado diez días desde que mi novio quedó en prisión .,it s been days since my boyfriend went to jail .,seq2seq_greedy,it s been ten day since i have to get on my ten .,0.6363636363636364,1.2727272727272727,semantic_or_grammar_error
+han pasado diez días desde que mi novio quedó en prisión .,it s been days since my boyfriend went to jail .,transformer_beam,it s been ten since i hung up in prison .,0.45454545454545453,1.0,semantic_or_grammar_error
+han pasado diez días desde que mi novio quedó en prisión .,it s been days since my boyfriend went to jail .,transformer_greedy,my father has been to pick up in prison for ten days .,0.45454545454545453,1.1818181818181819,semantic_or_grammar_error
+ningún libro se lee tanto como la biblia .,no other book is read as widely as the bible .,seq2seq_beam,no book read as much as the bible .,0.7,0.8181818181818182,semantic_or_grammar_error
+ningún libro se lee tanto como la biblia .,no other book is read as widely as the bible .,seq2seq_greedy,no book read as much as the bible .,0.7,0.8181818181818182,semantic_or_grammar_error
+ningún libro se lee tanto como la biblia .,no other book is read as widely as the bible .,transformer_beam,the book looks as long as the cost .,0.4,0.8181818181818182,semantic_or_grammar_error
+ningún libro se lee tanto como la biblia .,no other book is read as widely as the bible .,transformer_greedy,the book looks as long as the cost .,0.4,0.8181818181818182,semantic_or_grammar_error
+tom exigió saber por qué no se le había avisado acerca de los cambios .,tom demanded to know why he hadn t been told about the changes .,seq2seq_beam,tom demanded to know why he didn t care about his way .,0.6428571428571429,0.9285714285714286,semantic_or_grammar_error
+tom exigió saber por qué no se le había avisado acerca de los cambios .,tom demanded to know why he hadn t been told about the changes .,seq2seq_greedy,tom demanded to know why he didn t care about his way .,0.6428571428571429,0.9285714285714286,semantic_or_grammar_error
+tom exigió saber por qué no se le había avisado acerca de los cambios .,tom demanded to know why he hadn t been told about the changes .,transformer_beam,tom had not known about the reason .,0.2857142857142857,0.5714285714285714,under_translation
+tom exigió saber por qué no se le había avisado acerca de los cambios .,tom demanded to know why he hadn t been told about the changes .,transformer_greedy,tom had not knowing what s about the reason he had heard about .,0.35714285714285715,1.0,semantic_or_grammar_error
+no es tan fácil como crees .,it s not as easy as you think .,seq2seq_beam,it s not as easy as you think .,1.0,1.0,semantic_or_grammar_error
+no es tan fácil como crees .,it s not as easy as you think .,seq2seq_greedy,it s not as easy as you think .,1.0,1.0,semantic_or_grammar_error
+no es tan fácil como crees .,it s not as easy as you think .,transformer_beam,you don t think it s as easy as you think .,0.875,1.3333333333333333,semantic_or_grammar_error
+no es tan fácil como crees .,it s not as easy as you think .,transformer_greedy,you don t think it s as easy as you think .,0.875,1.3333333333333333,semantic_or_grammar_error
+quiero verte .,i want to see you .,seq2seq_beam,i want to see you .,1.0,1.0,semantic_or_grammar_error
+quiero verte .,i want to see you .,seq2seq_greedy,i want to see you .,1.0,1.0,semantic_or_grammar_error
+quiero verte .,i want to see you .,transformer_beam,i want to see you .,1.0,1.0,semantic_or_grammar_error
+quiero verte .,i want to see you .,transformer_greedy,i want to see you .,1.0,1.0,semantic_or_grammar_error
+todavía falta lijar el marco .,the frame still has to be sanded .,seq2seq_beam,it still got the the way .,0.375,0.875,semantic_or_grammar_error
+todavía falta lijar el marco .,the frame still has to be sanded .,seq2seq_greedy,it still got the the way .,0.375,0.875,semantic_or_grammar_error
+todavía falta lijar el marco .,the frame still has to be sanded .,transformer_beam,the odds are still .,0.375,0.625,semantic_or_grammar_error
+todavía falta lijar el marco .,the frame still has to be sanded .,transformer_greedy,the odds still is still .,0.375,0.75,semantic_or_grammar_error
+nací en .,i was born in .,seq2seq_beam,i was born in .,1.0,1.0,semantic_or_grammar_error
+nací en .,i was born in .,seq2seq_greedy,i was born in .,1.0,1.0,semantic_or_grammar_error
+nací en .,i was born in .,transformer_beam,i was born in born .,1.0,1.2,semantic_or_grammar_error
+nací en .,i was born in .,transformer_greedy,i was born in .,1.0,1.0,semantic_or_grammar_error
+¿ de qué es abreviatura esto ?,what is this the abbreviation for ?,seq2seq_beam,what s this mean ?,0.42857142857142855,0.7142857142857143,semantic_or_grammar_error
+¿ de qué es abreviatura esto ?,what is this the abbreviation for ?,seq2seq_greedy,what s this mean ?,0.42857142857142855,0.7142857142857143,semantic_or_grammar_error
+¿ de qué es abreviatura esto ?,what is this the abbreviation for ?,transformer_beam,what are you doing this ?,0.42857142857142855,0.8571428571428571,semantic_or_grammar_error
+¿ de qué es abreviatura esto ?,what is this the abbreviation for ?,transformer_greedy,what s your favorite real ?,0.2857142857142857,0.8571428571428571,semantic_or_grammar_error
+tom no sabía que mary pudiera hablar francés .,tom didn t know that mary could speak french .,seq2seq_beam,tom didn t know mary would speak to speak french .,0.8,1.1,semantic_or_grammar_error
+tom no sabía que mary pudiera hablar francés .,tom didn t know that mary could speak french .,seq2seq_greedy,tom didn t know mary would speak to speak french .,0.8,1.1,semantic_or_grammar_error
+tom no sabía que mary pudiera hablar francés .,tom didn t know that mary could speak french .,transformer_beam,tom didn t know mary could speak french .,0.9,0.9,semantic_or_grammar_error
+tom no sabía que mary pudiera hablar francés .,tom didn t know that mary could speak french .,transformer_greedy,tom didn t know mary could speak french .,0.9,0.9,semantic_or_grammar_error
+el calor era insoportable .,the heat was unbearable .,seq2seq_beam,the heat was hot .,0.8,1.0,semantic_or_grammar_error
+el calor era insoportable .,the heat was unbearable .,seq2seq_greedy,the heat was hot .,0.8,1.0,semantic_or_grammar_error
+el calor era insoportable .,the heat was unbearable .,transformer_beam,the heat was hot .,0.8,1.0,semantic_or_grammar_error
+el calor era insoportable .,the heat was unbearable .,transformer_greedy,the heat was hot .,0.8,1.0,semantic_or_grammar_error
+nadie vio aquello .,no one saw that .,seq2seq_beam,nobody saw that away .,0.6,1.0,semantic_or_grammar_error
+nadie vio aquello .,no one saw that .,seq2seq_greedy,nobody saw that away .,0.6,1.0,semantic_or_grammar_error
+nadie vio aquello .,no one saw that .,transformer_beam,no one saw anyone .,0.8,1.0,semantic_or_grammar_error
+nadie vio aquello .,no one saw that .,transformer_greedy,no one saw anyone .,0.8,1.0,semantic_or_grammar_error
+el hombre con el que hablaba es mi profesor de inglés .,the man i was talking to is my english teacher .,seq2seq_beam,the man with the that he is in english english english .,0.45454545454545453,1.0909090909090908,semantic_or_grammar_error
+el hombre con el que hablaba es mi profesor de inglés .,the man i was talking to is my english teacher .,seq2seq_greedy,men man with one who he is in english english .,0.36363636363636365,1.0,semantic_or_grammar_error
+el hombre con el que hablaba es mi profesor de inglés .,the man i was talking to is my english teacher .,transformer_beam,the man who my english is with my teacher .,0.6363636363636364,0.9090909090909091,semantic_or_grammar_error
+el hombre con el que hablaba es mi profesor de inglés .,the man i was talking to is my english teacher .,transformer_greedy,the man who my teacher is with the letter .,0.5454545454545454,0.9090909090909091,semantic_or_grammar_error
+¿ te gustó tu primera clase ?,did you like your first class ?,seq2seq_beam,did you enjoy your first class ?,0.8571428571428571,1.0,semantic_or_grammar_error
+¿ te gustó tu primera clase ?,did you like your first class ?,seq2seq_greedy,did you enjoy your first class ?,0.8571428571428571,1.0,semantic_or_grammar_error
+¿ te gustó tu primera clase ?,did you like your first class ?,transformer_beam,did you like your first class ?,1.0,1.0,semantic_or_grammar_error
+¿ te gustó tu primera clase ?,did you like your first class ?,transformer_greedy,did you like your first class ?,1.0,1.0,semantic_or_grammar_error
+lo que ha hecho ese hombre es una atrocidad .,what that man s done is an outrage .,seq2seq_beam,what he that that man is a blue .,0.5555555555555556,1.0,semantic_or_grammar_error
+lo que ha hecho ese hombre es una atrocidad .,what that man s done is an outrage .,seq2seq_greedy,what he that that man is a blue .,0.5555555555555556,1.0,semantic_or_grammar_error
+lo que ha hecho ese hombre es una atrocidad .,what that man s done is an outrage .,transformer_beam,that man has done .,0.4444444444444444,0.5555555555555556,under_translation
+lo que ha hecho ese hombre es una atrocidad .,what that man s done is an outrage .,transformer_greedy,that man has done .,0.4444444444444444,0.5555555555555556,under_translation
+no podemos permitirlo .,we can t let this happen .,seq2seq_beam,we can t play .,0.5714285714285714,0.7142857142857143,semantic_or_grammar_error
+no podemos permitirlo .,we can t let this happen .,seq2seq_greedy,we can t play .,0.5714285714285714,0.7142857142857143,semantic_or_grammar_error
+no podemos permitirlo .,we can t let this happen .,transformer_beam,we can t budge .,0.5714285714285714,0.7142857142857143,semantic_or_grammar_error
+no podemos permitirlo .,we can t let this happen .,transformer_greedy,we can t budge .,0.5714285714285714,0.7142857142857143,semantic_or_grammar_error
+tom quiere hacerse rico rápido .,tom wants to get rich quick .,seq2seq_beam,tom wants to become rich fast .,0.7142857142857143,1.0,semantic_or_grammar_error
+tom quiere hacerse rico rápido .,tom wants to get rich quick .,seq2seq_greedy,tom wants to become rich .,0.7142857142857143,0.8571428571428571,semantic_or_grammar_error
+tom quiere hacerse rico rápido .,tom wants to get rich quick .,transformer_beam,tom wants to be rich fast .,0.7142857142857143,1.0,semantic_or_grammar_error
+tom quiere hacerse rico rápido .,tom wants to get rich quick .,transformer_greedy,tom wants to be rich fast .,0.7142857142857143,1.0,semantic_or_grammar_error
+ellas siempre son cuidadosas .,they re always careful .,seq2seq_beam,they re always play .,0.8,1.0,semantic_or_grammar_error
+ellas siempre son cuidadosas .,they re always careful .,seq2seq_greedy,they re always play .,0.8,1.0,semantic_or_grammar_error
+ellas siempre son cuidadosas .,they re always careful .,transformer_beam,they re always beautiful .,0.8,1.0,semantic_or_grammar_error
+ellas siempre son cuidadosas .,they re always careful .,transformer_greedy,they re always beautiful .,0.8,1.0,semantic_or_grammar_error
+solo tom sabe .,only tom knows .,seq2seq_beam,just tom knows .,0.75,1.0,semantic_or_grammar_error
+solo tom sabe .,only tom knows .,seq2seq_greedy,just can knows .,0.5,1.0,semantic_or_grammar_error
+solo tom sabe .,only tom knows .,transformer_beam,tom knows just .,0.75,1.0,semantic_or_grammar_error
+solo tom sabe .,only tom knows .,transformer_greedy,tom knows just .,0.75,1.0,semantic_or_grammar_error
+el próximo verano quiero ir a hawái .,next summer i want to go to hawaii .,seq2seq_beam,next person i want to go to hawaii .,0.875,1.0,semantic_or_grammar_error
+el próximo verano quiero ir a hawái .,next summer i want to go to hawaii .,seq2seq_greedy,next person i want to go to hawaii .,0.875,1.0,semantic_or_grammar_error
+el próximo verano quiero ir a hawái .,next summer i want to go to hawaii .,transformer_beam,i want to go to hawaii next summer .,1.0,1.0,semantic_or_grammar_error
+el próximo verano quiero ir a hawái .,next summer i want to go to hawaii .,transformer_greedy,i want to go to hawaii next summer .,1.0,1.0,semantic_or_grammar_error
+empezó a quedarse calvo siendo bastante joven .,he started going bald quite young .,seq2seq_beam,it ll be able to be very young .,0.2857142857142857,1.2857142857142858,semantic_or_grammar_error
+empezó a quedarse calvo siendo bastante joven .,he started going bald quite young .,seq2seq_greedy,it began to be rather difficult .,0.14285714285714285,1.0,low_keyword_overlap
+empezó a quedarse calvo siendo bastante joven .,he started going bald quite young .,transformer_beam,it started to be rather stay for years .,0.2857142857142857,1.2857142857142858,semantic_or_grammar_error
+empezó a quedarse calvo siendo bastante joven .,he started going bald quite young .,transformer_greedy,it started to be rather stay for years .,0.2857142857142857,1.2857142857142858,semantic_or_grammar_error
+no quiero que todos en internet sean capaces de acceder a mis fotos .,i don t want everybody on the web to be able to access my photos .,seq2seq_beam,i don t want you in a they re trying to get pictures of my ability .,0.4666666666666667,1.0625,semantic_or_grammar_error
+no quiero que todos en internet sean capaces de acceder a mis fotos .,i don t want everybody on the web to be able to access my photos .,seq2seq_greedy,unless i don sober not everyone in no they re to wear .,0.26666666666666666,0.8125,semantic_or_grammar_error
+no quiero que todos en internet sean capaces de acceder a mis fotos .,i don t want everybody on the web to be able to access my photos .,transformer_beam,i don t want to take care of my opinion .,0.4666666666666667,0.6875,semantic_or_grammar_error
+no quiero que todos en internet sean capaces de acceder a mis fotos .,i don t want everybody on the web to be able to access my photos .,transformer_greedy,i don t want to take care of my orders .,0.4666666666666667,0.6875,semantic_or_grammar_error
+él entró en su habitación .,he entered his room .,seq2seq_beam,he went into his room .,0.8,1.2,semantic_or_grammar_error
+él entró en su habitación .,he entered his room .,seq2seq_greedy,he went into his room .,0.8,1.2,semantic_or_grammar_error
+él entró en su habitación .,he entered his room .,transformer_beam,he entered in his room .,1.0,1.2,semantic_or_grammar_error
+él entró en su habitación .,he entered his room .,transformer_greedy,he entered in his room .,1.0,1.2,semantic_or_grammar_error
+a partir de aquí iremos en vehículo .,from this point we ll go on by car .,seq2seq_beam,from out we ll have to live in .,0.4,0.9,semantic_or_grammar_error
+a partir de aquí iremos en vehículo .,from this point we ll go on by car .,seq2seq_greedy,from some go out in my car .,0.4,0.8,semantic_or_grammar_error
+a partir de aquí iremos en vehículo .,from this point we ll go on by car .,transformer_beam,we re going to be here in the hurry .,0.2,1.0,semantic_or_grammar_error
+a partir de aquí iremos en vehículo .,from this point we ll go on by car .,transformer_greedy,we re going to be here in the hurry .,0.2,1.0,semantic_or_grammar_error
+anoche tuvimos una fiesta .,we had a party last night .,seq2seq_beam,last night i had a party .,0.8571428571428571,1.0,semantic_or_grammar_error
+anoche tuvimos una fiesta .,we had a party last night .,seq2seq_greedy,last night i had a party .,0.8571428571428571,1.0,semantic_or_grammar_error
+anoche tuvimos una fiesta .,we had a party last night .,transformer_beam,we had a party last night .,1.0,1.0,semantic_or_grammar_error
+anoche tuvimos una fiesta .,we had a party last night .,transformer_greedy,last night we had a party .,1.0,1.0,semantic_or_grammar_error
+muchos profesores tienen problemas con tom .,many teachers have a problem with tom .,seq2seq_beam,many teachers have problems problems to tom .,0.625,1.0,semantic_or_grammar_error
+muchos profesores tienen problemas con tom .,many teachers have a problem with tom .,seq2seq_greedy,many teachers are problems problems to tom .,0.5,1.0,semantic_or_grammar_error
+muchos profesores tienen problemas con tom .,many teachers have a problem with tom .,transformer_beam,tom has a lot of problems with lots .,0.5,1.125,semantic_or_grammar_error
+muchos profesores tienen problemas con tom .,many teachers have a problem with tom .,transformer_greedy,tom has a lot of problems with lots .,0.5,1.125,semantic_or_grammar_error
+estás delgado .,you re skinny .,seq2seq_beam,you re tried .,0.75,1.0,semantic_or_grammar_error
+estás delgado .,you re skinny .,seq2seq_greedy,you re able .,0.75,1.0,semantic_or_grammar_error
+estás delgado .,you re skinny .,transformer_beam,you re a mistake .,0.75,1.25,semantic_or_grammar_error
+estás delgado .,you re skinny .,transformer_greedy,you re a mistake .,0.75,1.25,semantic_or_grammar_error
+casi había terminado mi trabajo cuando llegó .,i had almost finished my work when she came .,seq2seq_beam,i had just finished my work when he came .,0.8,1.0,semantic_or_grammar_error
+casi había terminado mi trabajo cuando llegó .,i had almost finished my work when she came .,seq2seq_greedy,i had just finished my my came when it came .,0.7,1.1,semantic_or_grammar_error
+casi había terminado mi trabajo cuando llegó .,i had almost finished my work when she came .,transformer_beam,when i had finished my work .,0.7,0.7,semantic_or_grammar_error
+casi había terminado mi trabajo cuando llegó .,i had almost finished my work when she came .,transformer_greedy,when i got up i was my work .,0.5,0.9,semantic_or_grammar_error
+haré que venga a ayudarme .,i will get him to come and help me .,seq2seq_beam,i ll do that to help me .,0.5,0.8,semantic_or_grammar_error
+haré que venga a ayudarme .,i will get him to come and help me .,seq2seq_greedy,i ll do that to help me .,0.5,0.8,semantic_or_grammar_error
+haré que venga a ayudarme .,i will get him to come and help me .,transformer_beam,i ll do it to help me .,0.5,0.8,semantic_or_grammar_error
+haré que venga a ayudarme .,i will get him to come and help me .,transformer_greedy,i ll do it for me .,0.3,0.7,semantic_or_grammar_error
+dime por qué llora .,tell me why she is crying .,seq2seq_beam,tell me what they were right .,0.42857142857142855,1.0,semantic_or_grammar_error
+dime por qué llora .,tell me why she is crying .,seq2seq_greedy,tell me what they were right .,0.42857142857142855,1.0,semantic_or_grammar_error
+dime por qué llora .,tell me why she is crying .,transformer_beam,tell me why i get out .,0.5714285714285714,1.0,semantic_or_grammar_error
+dime por qué llora .,tell me why she is crying .,transformer_greedy,tell me why i get out .,0.5714285714285714,1.0,semantic_or_grammar_error
+quisiera hacer una solicitud .,i would like to make a request .,seq2seq_beam,i d like to do an apple .,0.5,1.0,semantic_or_grammar_error
+quisiera hacer una solicitud .,i would like to make a request .,seq2seq_greedy,i d like to do a new .,0.625,1.0,semantic_or_grammar_error
+quisiera hacer una solicitud .,i would like to make a request .,transformer_beam,i d like to make a friend .,0.75,1.0,semantic_or_grammar_error
+quisiera hacer una solicitud .,i would like to make a request .,transformer_greedy,i d like to make a friend .,0.75,1.0,semantic_or_grammar_error
+tom se inclinó .,tom bowed .,seq2seq_beam,tom bowed .,1.0,1.0,semantic_or_grammar_error
+tom se inclinó .,tom bowed .,seq2seq_greedy,tom bowed .,1.0,1.0,semantic_or_grammar_error
+tom se inclinó .,tom bowed .,transformer_beam,tom bowed .,1.0,1.0,semantic_or_grammar_error
+tom se inclinó .,tom bowed .,transformer_greedy,tom bowed .,1.0,1.0,semantic_or_grammar_error
+él tiene derecho a un mejor tratamiento .,he is entitled to better treatment .,seq2seq_beam,he is right in a better man .,0.5714285714285714,1.1428571428571428,semantic_or_grammar_error
+él tiene derecho a un mejor tratamiento .,he is entitled to better treatment .,seq2seq_greedy,he is the little girl is .,0.42857142857142855,1.0,semantic_or_grammar_error
+él tiene derecho a un mejor tratamiento .,he is entitled to better treatment .,transformer_beam,he has a better time .,0.42857142857142855,0.8571428571428571,semantic_or_grammar_error
+él tiene derecho a un mejor tratamiento .,he is entitled to better treatment .,transformer_greedy,he has a better time .,0.42857142857142855,0.8571428571428571,semantic_or_grammar_error
+¿ anoche escuchaste música ?,did you listen to music last night ?,seq2seq_beam,do you know a music last night ?,0.625,1.0,semantic_or_grammar_error
+¿ anoche escuchaste música ?,did you listen to music last night ?,seq2seq_greedy,do you know a music last night ?,0.625,1.0,semantic_or_grammar_error
+¿ anoche escuchaste música ?,did you listen to music last night ?,transformer_beam,did you watch tv last night ?,0.625,0.875,semantic_or_grammar_error
+¿ anoche escuchaste música ?,did you listen to music last night ?,transformer_greedy,did you watch tv last night ?,0.625,0.875,semantic_or_grammar_error
+él se casó a los veintidós .,he got married at .,seq2seq_beam,he married to the tigers .,0.6,1.2,semantic_or_grammar_error
+él se casó a los veintidós .,he got married at .,seq2seq_greedy,he married to the tigers .,0.6,1.2,semantic_or_grammar_error
+él se casó a los veintidós .,he got married at .,transformer_beam,he got married .,0.8,0.8,semantic_or_grammar_error
+él se casó a los veintidós .,he got married at .,transformer_greedy,he married .,0.6,0.6,semantic_or_grammar_error
+estamos teniendo un problema con las palomas .,we re having a problem with pigeons .,seq2seq_beam,we re having a problem with .,0.875,0.875,semantic_or_grammar_error
+estamos teniendo un problema con las palomas .,we re having a problem with pigeons .,seq2seq_greedy,we re having a problem with .,0.875,0.875,semantic_or_grammar_error
+estamos teniendo un problema con las palomas .,we re having a problem with pigeons .,transformer_beam,we re having a rough .,0.625,0.75,semantic_or_grammar_error
+estamos teniendo un problema con las palomas .,we re having a problem with pigeons .,transformer_greedy,we re having a rough .,0.625,0.75,semantic_or_grammar_error

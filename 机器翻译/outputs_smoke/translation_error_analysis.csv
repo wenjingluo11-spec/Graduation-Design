@@ -1,0 +1,49 @@
+﻿source_spanish,reference_english,model_decode,prediction,token_overlap,length_ratio,error_tag
+no es nada personal .,it s nothing personal .,seq2seq_beam,it s not that .,0.6,1.0,semantic_or_grammar_error
+no es nada personal .,it s nothing personal .,seq2seq_greedy,it s not . .,0.6,1.0,semantic_or_grammar_error
+no es nada personal .,it s nothing personal .,transformer_beam,i don t want .,0.2,1.0,semantic_or_grammar_error
+no es nada personal .,it s nothing personal .,transformer_greedy,it s not not .,0.6,1.0,semantic_or_grammar_error
+decir eso trae mala suerte .,it s bad luck to say that .,seq2seq_beam,it s your . .,0.375,0.625,semantic_or_grammar_error
+decir eso trae mala suerte .,it s bad luck to say that .,seq2seq_greedy,i s your . .,0.25,0.625,semantic_or_grammar_error
+decir eso trae mala suerte .,it s bad luck to say that .,transformer_beam,it s a lot .,0.375,0.625,semantic_or_grammar_error
+decir eso trae mala suerte .,it s bad luck to say that .,transformer_greedy,i ll have a lot .,0.125,0.75,low_keyword_overlap
+hiciste lo correcto .,you did the right thing .,seq2seq_beam,it s that .,0.16666666666666666,0.6666666666666666,low_keyword_overlap
+hiciste lo correcto .,you did the right thing .,seq2seq_greedy,i s to .,0.16666666666666666,0.6666666666666666,low_keyword_overlap
+hiciste lo correcto .,you did the right thing .,transformer_beam,i ll know it .,0.16666666666666666,0.8333333333333334,low_keyword_overlap
+hiciste lo correcto .,you did the right thing .,transformer_greedy,i m a lot .,0.16666666666666666,0.8333333333333334,low_keyword_overlap
+la producción de vegetales va en crecimiento en nuestra área .,the production of vegetables is growing in our area .,seq2seq_beam,the has a in in the in . .,0.3,0.9,semantic_or_grammar_error
+la producción de vegetales va en crecimiento en nuestra área .,the production of vegetables is growing in our area .,seq2seq_greedy,the has a in in in the .,0.3,0.8,semantic_or_grammar_error
+la producción de vegetales va en crecimiento en nuestra área .,the production of vegetables is growing in our area .,transformer_beam,i was in the car .,0.3,0.6,semantic_or_grammar_error
+la producción de vegetales va en crecimiento en nuestra área .,the production of vegetables is growing in our area .,transformer_greedy,the car is in the door .,0.4,0.7,semantic_or_grammar_error
+él me dio lo que yo necesitaba .,he gave me what i needed .,seq2seq_beam,he doesn t know to . .,0.2857142857142857,1.0,semantic_or_grammar_error
+él me dio lo que yo necesitaba .,he gave me what i needed .,seq2seq_greedy,he was to you i .,0.42857142857142855,0.8571428571428571,semantic_or_grammar_error
+él me dio lo que yo necesitaba .,he gave me what i needed .,transformer_beam,he has .,0.2857142857142857,0.42857142857142855,under_translation
+él me dio lo que yo necesitaba .,he gave me what i needed .,transformer_greedy,he was very very very .,0.2857142857142857,0.8571428571428571,semantic_or_grammar_error
+tom pensó que mary no estaba durmiendo lo suficiente .,tom thought that mary wasn t getting enough sleep .,seq2seq_beam,tom said that he doesn t want to do that .,0.4,1.1,semantic_or_grammar_error
+tom pensó que mary no estaba durmiendo lo suficiente .,tom thought that mary wasn t getting enough sleep .,seq2seq_greedy,tom said mary t know t want to .,0.4,0.9,semantic_or_grammar_error
+tom pensó que mary no estaba durmiendo lo suficiente .,tom thought that mary wasn t getting enough sleep .,transformer_beam,tom didn t know mary .,0.4,0.6,semantic_or_grammar_error
+tom pensó que mary no estaba durmiendo lo suficiente .,tom thought that mary wasn t getting enough sleep .,transformer_greedy,tom didn t want to be mary .,0.4,0.8,semantic_or_grammar_error
+¿ podría echarle un ojo a mi maleta por un momento ?,could you keep an eye on my suitcase for a moment ?,seq2seq_beam,do you have a a a . .,0.16666666666666666,0.6666666666666666,low_keyword_overlap
+¿ podría echarle un ojo a mi maleta por un momento ?,could you keep an eye on my suitcase for a moment ?,seq2seq_greedy,what you a a a a a .,0.16666666666666666,0.6666666666666666,low_keyword_overlap
+¿ podría echarle un ojo a mi maleta por un momento ?,could you keep an eye on my suitcase for a moment ?,transformer_beam,do you have a good ?,0.25,0.5,under_translation
+¿ podría echarle un ojo a mi maleta por un momento ?,could you keep an eye on my suitcase for a moment ?,transformer_greedy,what a good ?,0.16666666666666666,0.3333333333333333,low_keyword_overlap
+creo que es una búsqueda inútil .,i think it s a wild goose chase .,seq2seq_beam,i s is a a . .,0.4444444444444444,0.7777777777777778,semantic_or_grammar_error
+creo que es una búsqueda inútil .,i think it s a wild goose chase .,seq2seq_greedy,i s a a a . .,0.4444444444444444,0.7777777777777778,semantic_or_grammar_error
+creo que es una búsqueda inútil .,i think it s a wild goose chase .,transformer_beam,it s a lot .,0.4444444444444444,0.5555555555555556,under_translation
+creo que es una búsqueda inútil .,i think it s a wild goose chase .,transformer_greedy,i m a lot of a lot .,0.3333333333333333,0.8888888888888888,semantic_or_grammar_error
+déjalo descansar tom .,let it rest tom .,seq2seq_beam,i tom tom .,0.4,0.8,semantic_or_grammar_error
+déjalo descansar tom .,let it rest tom .,seq2seq_greedy,i tom tom .,0.4,0.8,semantic_or_grammar_error
+déjalo descansar tom .,let it rest tom .,transformer_beam,tom has .,0.4,0.6,semantic_or_grammar_error
+déjalo descansar tom .,let it rest tom .,transformer_greedy,tom was .,0.4,0.6,semantic_or_grammar_error
+él se vio obligado a hacerlo en contra de su voluntad .,he was made to do it against his will .,seq2seq_beam,he had to the in the in the . .,0.3,1.0,semantic_or_grammar_error
+él se vio obligado a hacerlo en contra de su voluntad .,he was made to do it against his will .,seq2seq_greedy,he had to to the in the . .,0.3,0.9,semantic_or_grammar_error
+él se vio obligado a hacerlo en contra de su voluntad .,he was made to do it against his will .,transformer_beam,he was a lot .,0.3,0.5,under_translation
+él se vio obligado a hacerlo en contra de su voluntad .,he was made to do it against his will .,transformer_greedy,he was his new his new in his new .,0.4,1.0,semantic_or_grammar_error
+el doctor no estaba seguro de cuál era el problema .,the doctor was not sure what the trouble was .,seq2seq_beam,the don t want to the the the . .,0.25,1.0,semantic_or_grammar_error
+el doctor no estaba seguro de cuál era el problema .,the doctor was not sure what the trouble was .,seq2seq_greedy,the t t want to the the . .,0.25,0.9,semantic_or_grammar_error
+el doctor no estaba seguro de cuál era el problema .,the doctor was not sure what the trouble was .,transformer_beam,i don t want to the car .,0.25,0.8,semantic_or_grammar_error
+el doctor no estaba seguro de cuál era el problema .,the doctor was not sure what the trouble was .,transformer_greedy,i don t want to the car .,0.25,0.8,semantic_or_grammar_error
+anda a ayudar a lavar los platos .,go and help wash the dishes .,seq2seq_beam,i want to to the . .,0.2857142857142857,1.0,semantic_or_grammar_error
+anda a ayudar a lavar los platos .,go and help wash the dishes .,seq2seq_greedy,i m to to to .,0.14285714285714285,0.8571428571428571,low_keyword_overlap
+anda a ayudar a lavar los platos .,go and help wash the dishes .,transformer_beam,i m going to go .,0.2857142857142857,0.8571428571428571,semantic_or_grammar_error
+anda a ayudar a lavar los platos .,go and help wash the dishes .,transformer_greedy,i ll have a lot of the door .,0.2857142857142857,1.2857142857142858,semantic_or_grammar_error

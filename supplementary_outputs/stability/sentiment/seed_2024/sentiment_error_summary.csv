@@ -1,0 +1,4 @@
+﻿best_model,error_type,count
+NaiveBayes,correct,4296
+NaiveBayes,false_negative,366
+NaiveBayes,false_positive,338

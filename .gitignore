@@ -43,3 +43,14 @@ desktop.ini
 *.tmp
 *.bak
 *.swp
+
+# 机器翻译实验临时文件
+机器翻译/temp_*.txt
+机器翻译/*_temp.txt
+机器翻译/add_*.py
+机器翻译/fix_*.py
+机器翻译/quick_fix.py
+机器翻译/*.md
+机器翻译/*_backup.ipynb
+机器翻译/docs/
+机器翻译/.claude/

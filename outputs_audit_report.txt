@@ -1,0 +1,8 @@
+Output Audit Report
+==================
+Sentiment quick=False
+Reuters quick=False
+MT quick=False
+
+Status: OK
+No structural issues found.
