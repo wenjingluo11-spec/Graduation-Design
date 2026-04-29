@@ -23,7 +23,7 @@ import random
 import re
 import time
 from collections import Counter
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Dict, List, Sequence, Tuple
 
@@ -46,6 +46,15 @@ from sklearn.metrics import (
 )
 from sklearn.model_selection import train_test_split
 from sklearn.naive_bayes import MultinomialNB
+
+
+def _detect_device() -> str:
+    """三级设备 fallback: mps → cuda → cpu"""
+    if torch.backends.mps.is_available() and torch.backends.mps.is_built():
+        return "mps"
+    if torch.cuda.is_available():
+        return "cuda"
+    return "cpu"
 
 
 @dataclass
@@ -71,7 +80,7 @@ class Config:
     max_train_samples: int = 12000
     max_test_samples: int = 5000
     min_df_tfidf: int = 3
-    device: str = "cuda" if torch.cuda.is_available() else "cpu"
+    device: str = field(default_factory=_detect_device)
     quick: bool = False
 
 
@@ -86,7 +95,7 @@ def parse_args() -> Config:
     parser.add_argument("--max-test-samples", type=int, default=5000)
     parser.add_argument("--patience", type=int, default=4)
     parser.add_argument("--min-delta", type=float, default=1e-4)
-    parser.add_argument("--device", type=str, default=None, choices=[None, "cpu", "cuda"])
+    parser.add_argument("--device", type=str, default=None, choices=[None, "cpu", "cuda", "mps"])
     parser.add_argument("--quick", action="store_true", help="快速跑通模式")
     args = parser.parse_args()
 
@@ -103,7 +112,7 @@ def parse_args() -> Config:
         quick=args.quick,
     )
     if args.device is not None:
-        cfg.device = args.device if args.device == "cpu" else ("cuda" if torch.cuda.is_available() else "cpu")
+        cfg.device = args.device  # 用户显式指定即生效
 
     if cfg.quick:
         cfg.epochs = 2
