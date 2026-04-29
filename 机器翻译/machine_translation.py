@@ -22,7 +22,7 @@ import random
 import re
 import time
 import unicodedata
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Dict, List, Sequence, Tuple
 
@@ -37,6 +37,15 @@ import torch.optim as optim
 import torch.utils.data as data
 from nltk.translate.bleu_score import SmoothingFunction, corpus_bleu
 from sklearn.model_selection import train_test_split
+
+
+def _detect_device() -> str:
+    """三级设备 fallback: mps → cuda → cpu"""
+    if torch.backends.mps.is_available() and torch.backends.mps.is_built():
+        return "mps"
+    if torch.cuda.is_available():
+        return "cuda"
+    return "cpu"
 
 
 @dataclass
@@ -72,7 +81,7 @@ class Config:
     beam_size: int = 4
     length_penalty: float = 0.7
     quick: bool = False
-    device: str = "cuda" if torch.cuda.is_available() else "cpu"
+    device: str = field(default_factory=_detect_device)
 
 
 def parse_args() -> Config:
@@ -87,7 +96,7 @@ def parse_args() -> Config:
     parser.add_argument("--patience-seq2seq", type=int, default=5)
     parser.add_argument("--patience-transformer", type=int, default=5)
     parser.add_argument("--min-delta-bleu", type=float, default=1e-4)
-    parser.add_argument("--device", type=str, default=None, choices=[None, "cpu", "cuda"])
+    parser.add_argument("--device", type=str, default=None, choices=[None, "cpu", "cuda", "mps"])
     parser.add_argument("--quick", action="store_true")
     args = parser.parse_args()
 
@@ -105,7 +114,7 @@ def parse_args() -> Config:
         quick=args.quick,
     )
     if args.device is not None:
-        cfg.device = args.device if args.device == "cpu" else ("cuda" if torch.cuda.is_available() else "cpu")
+        cfg.device = args.device  # 用户显式指定即生效
 
     if cfg.quick:
         cfg.max_samples = min(cfg.max_samples, 7000)
