@@ -18,6 +18,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import os
 import random
 import re
 import time
@@ -42,6 +43,8 @@ from sklearn.model_selection import train_test_split
 def _detect_device() -> str:
     """三级设备 fallback: mps → cuda → cpu"""
     if torch.backends.mps.is_available() and torch.backends.mps.is_built():
+        # 已知 MPS 不实现部分 nested-tensor 算子,启用 CPU fallback
+        os.environ.setdefault("PYTORCH_ENABLE_MPS_FALLBACK", "1")
         return "mps"
     if torch.cuda.is_available():
         return "cuda"
