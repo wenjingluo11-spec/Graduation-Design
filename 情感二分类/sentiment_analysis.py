@@ -19,6 +19,11 @@ import argparse
 import json
 import math
 import os
+
+# MPS fallback 必须在 import torch 之前设置,否则 nn.TransformerEncoder 在
+# __init__ 阶段已锁定 use_nested_tensor 路径,后续 forward 仍会触发 MPS 不实现的算子.
+os.environ.setdefault("PYTORCH_ENABLE_MPS_FALLBACK", "1")
+
 import random
 import re
 import time
@@ -51,8 +56,6 @@ from sklearn.naive_bayes import MultinomialNB
 def _detect_device() -> str:
     """三级设备 fallback: mps → cuda → cpu"""
     if torch.backends.mps.is_available() and torch.backends.mps.is_built():
-        # 已知 MPS 不实现部分 nested-tensor 算子,启用 CPU fallback
-        os.environ.setdefault("PYTORCH_ENABLE_MPS_FALLBACK", "1")
         return "mps"
     if torch.cuda.is_available():
         return "cuda"
