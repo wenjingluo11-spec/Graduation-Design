@@ -265,7 +265,7 @@ class TransformerMulti(nn.Module):
         self.dropout = nn.Dropout(dropout)
         self.fc = nn.Linear(emb_dim, num_classes)
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
+    def forward(self, x: torch.Tensor, return_attention: bool = False):
         pad_mask = x.eq(0)
         emb = self.embedding(x) * math.sqrt(self.embedding.embedding_dim)
         emb = self.pos(emb)
@@ -274,7 +274,17 @@ class TransformerMulti(nn.Module):
         valid_len = (~pad_mask).sum(dim=1).clamp(min=1).unsqueeze(1)
         pooled = pooled / valid_len
         pooled = self.dropout(pooled)
-        return self.fc(pooled)
+        logits = self.fc(pooled)
+        if return_attention:
+            last_layer = self.encoder.layers[-1]
+            with torch.no_grad():
+                _, attn = last_layer.self_attn(
+                    out, out, out,
+                    key_padding_mask=pad_mask,
+                    need_weights=True, average_attn_weights=False,
+                )
+            return logits, attn  # attn: [B, num_heads, L, L]
+        return logits
 
 
 def compute_mc_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> Dict[str, float]:
