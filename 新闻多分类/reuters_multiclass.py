@@ -78,6 +78,9 @@ class Config:
     device: str = field(default_factory=_detect_device)
     quick: bool = False
     include_hybrid: bool = False
+    loss: str = "ce"
+    focal_gamma: float = 2.0
+    output_suffix: str = ""
 
 
 def parse_args() -> Config:
@@ -93,6 +96,9 @@ def parse_args() -> Config:
     parser.add_argument("--device", type=str, default=None, choices=[None, "cpu", "cuda", "mps"])
     parser.add_argument("--quick", action="store_true")
     parser.add_argument("--include-hybrid", action="store_true", help="加入 CNN-BiGRU 混合模型对比")
+    parser.add_argument("--loss", choices=["ce", "focal"], default="ce")
+    parser.add_argument("--focal-gamma", type=float, default=2.0)
+    parser.add_argument("--output-suffix", type=str, default="", help="附加到所有输出文件名后,便于 γ-scan 等并存")
     args = parser.parse_args()
 
     cfg = Config(
@@ -106,6 +112,9 @@ def parse_args() -> Config:
         early_stopping_min_delta=args.min_delta,
         quick=args.quick,
         include_hybrid=args.include_hybrid,
+        loss=args.loss,
+        focal_gamma=args.focal_gamma,
+        output_suffix=args.output_suffix,
     )
     if args.device is not None:
         cfg.device = args.device  # 用户显式指定即生效
@@ -328,6 +337,24 @@ def compute_mc_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> Dict[str, floa
     }
 
 
+class FocalLoss(nn.Module):
+    """多分类 focal loss: FL = -(1 - p_t)^γ * log(p_t).
+
+    γ=0 退化为标准交叉熵; γ>0 对易分类样本下放权重, 关注困难/少数类.
+    """
+    def __init__(self, gamma: float = 2.0, ignore_index: int = -100):
+        super().__init__()
+        self.gamma = gamma
+        self.ignore_index = ignore_index
+        self.ce = nn.CrossEntropyLoss(reduction="none", ignore_index=ignore_index)
+
+    def forward(self, logits: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
+        ce_loss = self.ce(logits, target)            # [B]
+        pt = torch.exp(-ce_loss)                     # softmax-prob of target class
+        focal = (1 - pt) ** self.gamma * ce_loss
+        return focal.mean()
+
+
 def train_one_epoch(
     model: nn.Module,
     loader: data.DataLoader,
@@ -376,7 +403,10 @@ def run_dl_model(
 ) -> Tuple[Dict[str, float], Dict[str, List[float]], np.ndarray, np.ndarray]:
     device = torch.device(cfg.device)
     model = model.to(device)
-    criterion = nn.CrossEntropyLoss()
+    if cfg.loss == "focal":
+        criterion = FocalLoss(gamma=cfg.focal_gamma)
+    else:
+        criterion = nn.CrossEntropyLoss()
     optimizer = optim.AdamW(model.parameters(), lr=cfg.lr, weight_decay=cfg.weight_decay)
 
     history: Dict[str, List[float]] = {"train_loss": [], "val_acc": [], "val_f1_macro": []}
@@ -476,6 +506,7 @@ def save_reuters_error_analysis(
     pred_by_model: Dict[str, np.ndarray],
     out_dir: Path,
     top_k_per_model: int = 25,
+    suffix: str = "",
 ) -> None:
     rows: List[Dict[str, float]] = []
     for model_name, y_pred in pred_by_model.items():
@@ -498,7 +529,7 @@ def save_reuters_error_analysis(
 
     conf_df = pd.DataFrame(rows).sort_values(by=["model", "count"], ascending=[True, False])
     top_df = conf_df.groupby("model", as_index=False).head(top_k_per_model).reset_index(drop=True)
-    top_df.to_csv(out_dir / "reuters_top_confusions.csv", index=False, encoding="utf-8-sig")
+    top_df.to_csv(out_dir / f"reuters_top_confusions{suffix}.csv", index=False, encoding="utf-8-sig")
 
 
 def plot_history(history: Dict[str, List[float]], model_name: str, out_dir: Path) -> None:
@@ -599,6 +630,7 @@ def run_experiment(cfg: Config) -> pd.DataFrame:
     out_dir.mkdir(parents=True, exist_ok=True)
     ckpt_dir = out_dir / "checkpoints"
     ckpt_dir.mkdir(parents=True, exist_ok=True)
+    suffix = cfg.output_suffix
 
     print("\n配置:")
     print(json.dumps(asdict(cfg), ensure_ascii=False, indent=2))
@@ -691,28 +723,29 @@ def run_experiment(cfg: Config) -> pd.DataFrame:
     print("\n最终结果:")
     print(results_df.to_string(index=False, float_format="%.4f"))
 
-    results_df.to_csv(out_dir / "reuters_results.csv", index=False, encoding="utf-8-sig")
+    results_df.to_csv(out_dir / f"reuters_results{suffix}.csv", index=False, encoding="utf-8-sig")
     eff_cols = ["model", "params", "train_seconds", "infer_seconds", "infer_samples_per_sec"]
     eff_cols = [c for c in eff_cols if c in results_df.columns]
     if eff_cols:
-        results_df[eff_cols].to_csv(out_dir / "reuters_efficiency.csv", index=False, encoding="utf-8-sig")
+        results_df[eff_cols].to_csv(out_dir / f"reuters_efficiency{suffix}.csv", index=False, encoding="utf-8-sig")
 
     save_reuters_error_analysis(
         y_true=y_test,
         pred_by_model=pred_by_model,
         out_dir=out_dir,
         top_k_per_model=30 if not cfg.quick else 12,
+        suffix=suffix,
     )
 
     best_model = str(results_df.iloc[0]["model"])
     if best_model in pred_by_model:
         best_report = classification_report(y_test, pred_by_model[best_model], output_dict=True, zero_division=0)
         pd.DataFrame(best_report).T.to_csv(
-            out_dir / "reuters_class_report_best_model.csv",
+            out_dir / f"reuters_class_report_best_model{suffix}.csv",
             encoding="utf-8-sig",
         )
 
-    (out_dir / "reuters_config.json").write_text(
+    (out_dir / f"reuters_config{suffix}.json").write_text(
         json.dumps(asdict(cfg), ensure_ascii=False, indent=2),
         encoding="utf-8",
     )
