@@ -531,6 +531,212 @@ def fig_stability_seeds() -> None:
 
 
 # ─────────────────────────────────────────────────────────────
+# 7. 新增创新工作图表
+# ─────────────────────────────────────────────────────────────
+def fig_hybrid_compare() -> None:
+    """主对比表中加入 CNNBiGRU 一行后, 三任务的 head-to-head 对比图.
+
+    依赖: 三任务 outputs/*_results.csv 已含 CNNBiGRU 行 (T10/T11/T12 已实现).
+    若任一任务的 results.csv 中缺 CNNBiGRU, 该任务子图静默跳过.
+    """
+    sent_path = SENT_DIR / "sentiment_results.csv"
+    reut_path = REUT_DIR / "reuters_results.csv"
+    tran_path = TRAN_DIR / "translation_results.csv"
+    if not (sent_path.exists() and reut_path.exists() and tran_path.exists()):
+        print("  (跳过 hybrid_compare: 缺一个或多个 results.csv)")
+        return
+    sent = _read_csv(sent_path).set_index("model")
+    reut = _read_csv(reut_path).set_index("model")
+    tran = _read_csv(tran_path).set_index("model")
+
+    fig, axes = plt.subplots(1, 3, figsize=(15, 4.5))
+    sent_models = ["TextCNN", "BiGRU", "Transformer", "CNNBiGRU"]
+    sent_vals = [sent.loc[m, "f1"] if m in sent.index else np.nan for m in sent_models]
+    axes[0].bar(sent_models, sent_vals,
+                color=[MODEL_COLORS.get(m, "#888") for m in sent_models],
+                edgecolor="black")
+    axes[0].set_title("情感二分类 F1")
+    axes[0].set_ylim(0.7, 0.95)
+    axes[0].tick_params(axis="x", rotation=15)
+
+    reut_models = ["TextCNN", "BiGRU", "Transformer", "CNNBiGRU"]
+    reut_vals = [reut.loc[m, "f1_macro"] if m in reut.index else np.nan for m in reut_models]
+    axes[1].bar(reut_models, reut_vals,
+                color=[MODEL_COLORS.get(m, "#888") for m in reut_models],
+                edgecolor="black")
+    axes[1].set_title("Reuters Macro-F1")
+    axes[1].set_ylim(0.4, 0.7)
+    axes[1].tick_params(axis="x", rotation=15)
+
+    tran_models = ["Seq2Seq+Attention", "Transformer", "CNNBiGRU"]
+    tran_vals = [tran.loc[m, "BLEU-4"] if m in tran.index else np.nan for m in tran_models]
+    axes[2].bar(tran_models, tran_vals,
+                color=[MODEL_COLORS.get(m, "#888") for m in tran_models],
+                edgecolor="black")
+    axes[2].set_title("翻译 BLEU-4")
+    axes[2].set_ylim(0.25, 0.40)
+    axes[2].tick_params(axis="x", rotation=15)
+
+    fig.suptitle("CNN-BiGRU 混合模型 vs 单一架构基线", y=1.02)
+    _save(fig, "fig_hybrid_compare.png")
+
+
+def fig_focal_gamma_ablation() -> None:
+    """γ ∈ {0.5, 1.0, 2.0, 5.0} 的 Macro-F1 折线图 (Reuters).
+
+    数据源: 新闻多分类/outputs/reuters_results_focal_g*.csv (Plan 中要求的 γ-scan 输出)
+    """
+    rows = []
+    for p in REUT_DIR.glob("reuters_results_focal_g*.csv"):
+        # 文件名形如 reuters_results_focal_g2.0.csv
+        try:
+            gamma = float(p.stem.rsplit("_g", 1)[-1])
+        except ValueError:
+            continue
+        df = _read_csv(p)
+        for _, r in df.iterrows():
+            rows.append({"model": r["model"], "gamma": gamma, "f1_macro": r["f1_macro"]})
+    if not rows:
+        print("  (跳过 focal_gamma_ablation: 无 reuters_results_focal_g*.csv)")
+        return
+    df = pd.DataFrame(rows)
+
+    fig, ax = plt.subplots(figsize=(8, 5))
+    for model, sub in df.groupby("model"):
+        sub = sub.sort_values("gamma")
+        ax.plot(sub["gamma"], sub["f1_macro"], marker="o", label=str(model), linewidth=2)
+    ax.set_xlabel("focal γ")
+    ax.set_ylabel("Macro-F1")
+    ax.set_title("Reuters-46: Focal Loss γ 敏感性")
+    ax.legend()
+    _save(fig, "fig_focal_gamma_ablation.png")
+
+
+def fig_label_smoothing_compare() -> None:
+    """对比 baseline Transformer 与 LS Transformer 的 BLEU-1/2/4."""
+    base_path = TRAN_DIR / "translation_results.csv"
+    ls_path = TRAN_DIR / "translation_results_ls.csv"
+    if not (base_path.exists() and ls_path.exists()):
+        print("  (跳过 label_smoothing_compare: 缺 _ls 结果或 baseline)")
+        return
+    base = _read_csv(base_path)
+    ls = _read_csv(ls_path)
+    if "Transformer" not in base["model"].values or "Transformer" not in ls["model"].values:
+        print("  (跳过 label_smoothing_compare: 无 Transformer 行)")
+        return
+    base_tf = base[base["model"] == "Transformer"].iloc[0]
+    ls_tf = ls[ls["model"] == "Transformer"].iloc[0]
+    metrics = ["BLEU-1", "BLEU-2", "BLEU-4"]
+    x = np.arange(len(metrics))
+    w = 0.35
+
+    fig, ax = plt.subplots(figsize=(7, 4.5))
+    ax.bar(x - w / 2, [base_tf[m] for m in metrics], w,
+           label="baseline", color="#FFA726", edgecolor="black")
+    ax.bar(x + w / 2, [ls_tf[m] for m in metrics], w,
+           label="+LabelSmoothing 0.1", color="#26A69A", edgecolor="black")
+    ax.set_xticks(x)
+    ax.set_xticklabels(metrics)
+    ax.set_ylabel("BLEU")
+    ax.set_title("翻译 Transformer: Label Smoothing 影响")
+    ax.legend()
+    _save(fig, "fig_label_smoothing_compare.png")
+
+
+def fig_decode_grid() -> None:
+    """beam × length_penalty 的 BLEU-4 网格热图 (Seq2Seq vs Transformer)."""
+    p = TRAN_DIR / "translation_decode_grid.csv"
+    if not p.exists():
+        print("  (跳过 decode_grid: 无 translation_decode_grid.csv)")
+        return
+    df = _read_csv(p)
+    # decode_grid.py 的 BLEU 列名为 bleu1/bleu2/bleu4 (lowercase, no dash)
+    score_col = "bleu4" if "bleu4" in df.columns else "BLEU-4"
+    if score_col not in df.columns:
+        print(f"  (跳过 decode_grid: 找不到 BLEU-4 列, 仅有 {list(df.columns)})")
+        return
+
+    fig, axes = plt.subplots(1, 2, figsize=(11, 4.5))
+    for ax, model in zip(axes, ["Seq2Seq+Attention", "Transformer"]):
+        sub = df[df["model"] == model]
+        if sub.empty:
+            ax.set_title(f"{model} (无数据)")
+            continue
+        pivot = sub.pivot(index="beam", columns="length_penalty", values=score_col)
+        sns.heatmap(pivot, annot=True, fmt=".4f", cmap="YlGn",
+                    ax=ax, cbar_kws={"label": "BLEU-4"})
+        ax.set_title(model)
+    fig.suptitle("解码策略网格搜索: beam × length_penalty", y=1.02)
+    _save(fig, "fig_decode_grid.png")
+
+
+def fig_learning_curve() -> None:
+    """三任务 ratio vs 主指标的折线图.
+
+    数据源: supplementary_outputs/learning_curve/{sentiment,reuters,translation}_curve_results.csv
+    """
+    base = ROOT / "supplementary_outputs" / "learning_curve"
+    fig, axes = plt.subplots(1, 3, figsize=(15, 4.5))
+    for ax, task, score, title in [
+        (axes[0], "sentiment", "f1", "情感二分类 (F1)"),
+        (axes[1], "reuters", "f1_macro", "Reuters Macro-F1"),
+        (axes[2], "translation", "BLEU-4", "翻译 BLEU-4"),
+    ]:
+        path = base / f"{task}_curve_results.csv"
+        if not path.exists():
+            ax.set_title(f"{title} (无数据)")
+            ax.set_xlabel("训练数据比例 (%)")
+            continue
+        df = _read_csv(path)
+        if score not in df.columns or "ratio" not in df.columns:
+            ax.set_title(f"{title} (列缺失)")
+            continue
+        for model, sub in df.groupby("model"):
+            sub = sub.sort_values("ratio")
+            ax.plot(sub["ratio"] * 100, sub[score],
+                    marker="o", label=str(model), linewidth=2)
+        ax.set_xlabel("训练数据比例 (%)")
+        ax.set_ylabel(score)
+        ax.set_title(title)
+        ax.legend(fontsize=8)
+    fig.suptitle("数据规模学习曲线", y=1.02)
+    _save(fig, "fig_learning_curve.png")
+
+
+def fig_robustness() -> None:
+    """三任务扰动鲁棒性曲线.
+
+    数据源: supplementary_outputs/robustness/{sentiment,reuters,translation}_robustness.csv
+    """
+    base = ROOT / "supplementary_outputs" / "robustness"
+    fig, axes = plt.subplots(1, 3, figsize=(15, 4.5))
+    for ax, task, score, title in [
+        (axes[0], "sentiment", "f1", "情感二分类 (F1)"),
+        (axes[1], "reuters", "f1_macro", "Reuters Macro-F1"),
+        (axes[2], "translation", "bleu4", "翻译 BLEU-4"),
+    ]:
+        path = base / f"{task}_robustness.csv"
+        if not path.exists():
+            ax.set_title(f"{title} (无数据)")
+            ax.set_xlabel("扰动比例 (%)")
+            continue
+        df = _read_csv(path)
+        if score not in df.columns or "p" not in df.columns or "mode" not in df.columns:
+            ax.set_title(f"{title} (列缺失)")
+            continue
+        for (model, mode), sub in df.groupby(["model", "mode"]):
+            sub = sub.sort_values("p")
+            ax.plot(sub["p"] * 100, sub[score],
+                    marker="o", label=f"{model}-{mode}", linewidth=1.5)
+        ax.set_xlabel("扰动比例 (%)")
+        ax.set_ylabel(score)
+        ax.set_title(title)
+        ax.legend(fontsize=7, ncol=2)
+    fig.suptitle("词级扰动鲁棒性", y=1.02)
+    _save(fig, "fig_robustness.png")
+
+
+# ─────────────────────────────────────────────────────────────
 # Main
 # ─────────────────────────────────────────────────────────────
 def main() -> None:
@@ -552,6 +758,12 @@ def main() -> None:
         ("效率: 训练耗时", fig_efficiency_train_time),
         ("效率: 推理吞吐", fig_efficiency_infer_speed),
         ("多种子稳定性", fig_stability_seeds),
+        ("混合模型对比", fig_hybrid_compare),
+        ("Focal γ 消融", fig_focal_gamma_ablation),
+        ("Label Smoothing 对比", fig_label_smoothing_compare),
+        ("解码网格", fig_decode_grid),
+        ("学习曲线", fig_learning_curve),
+        ("鲁棒性", fig_robustness),
     ]
     failed = []
     for name, fn in figs:
