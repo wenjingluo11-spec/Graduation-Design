@@ -87,6 +87,7 @@ class Config:
     length_penalty: float = 0.7
     quick: bool = False
     device: str = field(default_factory=_detect_device)
+    include_hybrid: bool = False
 
 
 def parse_args() -> Config:
@@ -103,6 +104,7 @@ def parse_args() -> Config:
     parser.add_argument("--min-delta-bleu", type=float, default=1e-4)
     parser.add_argument("--device", type=str, default=None, choices=[None, "cpu", "cuda", "mps"])
     parser.add_argument("--quick", action="store_true")
+    parser.add_argument("--include-hybrid", action="store_true", help="加入 CNN-BiGRU 混合 encoder")
     args = parser.parse_args()
 
     cfg = Config(
@@ -117,6 +119,7 @@ def parse_args() -> Config:
         early_stopping_patience_transformer=args.patience_transformer,
         early_stopping_min_delta_bleu=args.min_delta_bleu,
         quick=args.quick,
+        include_hybrid=args.include_hybrid,
     )
     if args.device is not None:
         cfg.device = args.device  # 用户显式指定即生效
@@ -294,6 +297,40 @@ class Encoder(nn.Module):
         emb = self.dropout(self.embedding(src))
         outputs, hidden = self.gru(emb)
         return outputs, hidden
+
+
+class CNNBiGRUEncoder(nn.Module):
+    """Stacked CNN-BiGRU encoder for Seq2Seq.
+
+    Conv1d (k=3, pad=1) over the embedding, then bi-GRU.
+    Output projected back to ``hidden_dim`` so it is a drop-in replacement
+    for ``Encoder`` (BahdanauAttention + Decoder need not change).
+    """
+    def __init__(self, vocab_size: int, emb_dim: int, hidden_dim: int, dropout: float):
+        super().__init__()
+        self.embedding = nn.Embedding(vocab_size, emb_dim, padding_idx=PAD_IDX)
+        self.conv = nn.Conv1d(emb_dim, emb_dim, kernel_size=3, padding=1)
+        self.bigru = nn.GRU(
+            emb_dim,
+            hidden_dim,
+            num_layers=1,
+            bidirectional=True,
+            batch_first=True,
+        )
+        # Project bi-GRU outputs and hidden back to hidden_dim
+        self.out_proj = nn.Linear(hidden_dim * 2, hidden_dim)
+        self.hid_proj = nn.Linear(hidden_dim * 2, hidden_dim)
+        self.dropout = nn.Dropout(dropout)
+
+    def forward(self, src: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+        emb = self.dropout(self.embedding(src))                       # [B, L, E]
+        conv_out = torch.relu(self.conv(emb.transpose(1, 2)))         # [B, E, L]
+        gru_in = conv_out.transpose(1, 2)                             # [B, L, E]
+        outputs, hidden = self.bigru(gru_in)                          # outputs: [B, L, 2H]; hidden: [2, B, H]
+        outputs = self.out_proj(outputs)                              # [B, L, H]
+        hidden_cat = torch.cat([hidden[0], hidden[1]], dim=1)         # [B, 2H]
+        new_hidden = torch.tanh(self.hid_proj(hidden_cat)).unsqueeze(0)  # [1, B, H]
+        return outputs, new_hidden
 
 
 class BahdanauAttention(nn.Module):
@@ -1035,6 +1072,84 @@ def run_experiment(cfg: Config) -> pd.DataFrame:
     print("\nTransformer 测试 BLEU:")
     print(json.dumps(tf_test, ensure_ascii=False, indent=2))
 
+    # CNN-BiGRU hybrid encoder (Seq2Seq with CNNBiGRUEncoder)
+    hyb_s2s_test = None
+    hyb_s2s_test_greedy = None
+    infer_seconds_hyb_beam = 0.0
+    infer_seconds_hyb_greedy = 0.0
+    best_bleu_hyb = -1.0
+    best_epoch_hyb = 0
+    hist_hyb: Dict[str, List[float]] = {"loss": [], "bleu4_val": []}
+    train_seconds_hyb = 0.0
+    hyb_s2s = None
+
+    if cfg.include_hybrid:
+        hyb_encoder = CNNBiGRUEncoder(len(src_vocab), cfg.embedding_dim, cfg.hidden_dim, cfg.dropout)
+        hyb_decoder = Decoder(len(tgt_vocab), cfg.embedding_dim, cfg.hidden_dim, cfg.dropout)
+        hyb_s2s = Seq2Seq(hyb_encoder, hyb_decoder, cfg.max_seq_len).to(device)
+        opt_hyb = optim.AdamW(hyb_s2s.parameters(), lr=cfg.lr_seq2seq, weight_decay=1e-5)
+
+        best_state_hyb = None
+        bad_epochs_hyb = 0
+        patience_hyb = cfg.early_stopping_patience_seq2seq
+        ckpt_hyb = ckpt_dir / "cnnbigru_best.pt"
+
+        print(f"\n{'=' * 70}\n训练 CNN-BiGRU Seq2Seq\n{'=' * 70}")
+        for ep in range(1, cfg.epochs_seq2seq + 1):
+            t0 = time.time()
+            loss = train_seq2seq_epoch(
+                hyb_s2s,
+                train_loader,
+                opt_hyb,
+                criterion,
+                device,
+                teacher_forcing_ratio=cfg.teacher_forcing_ratio,
+            )
+            val_bleu = evaluate_seq2seq_bleu(
+                hyb_s2s,
+                src_val,
+                tgt_val,
+                tgt_vocab,
+                decode_method="beam",
+                cfg=cfg,
+                sample_size=min(cfg.bleu_val_sample_size, len(src_val)),
+            )
+            hist_hyb["loss"].append(loss)
+            hist_hyb["bleu4_val"].append(val_bleu["bleu4"])
+            elapsed = time.time() - t0
+            train_seconds_hyb += elapsed
+            print(
+                f"Epoch {ep:02d}/{cfg.epochs_seq2seq} | "
+                f"loss={loss:.4f} | val_bleu4={val_bleu['bleu4']:.4f} | {elapsed:.1f}s"
+            )
+
+            if val_bleu["bleu4"] > (best_bleu_hyb + cfg.early_stopping_min_delta_bleu):
+                best_bleu_hyb = val_bleu["bleu4"]
+                best_epoch_hyb = ep
+                best_state_hyb = {k: v.cpu().clone() for k, v in hyb_s2s.state_dict().items()}
+                torch.save(best_state_hyb, ckpt_hyb)
+                bad_epochs_hyb = 0
+            else:
+                bad_epochs_hyb += 1
+                if bad_epochs_hyb >= patience_hyb:
+                    print("CNN-BiGRU 早停触发")
+                    break
+
+        if ckpt_hyb.exists():
+            hyb_s2s.load_state_dict(torch.load(ckpt_hyb, map_location=device))
+        elif best_state_hyb is not None:
+            hyb_s2s.load_state_dict(best_state_hyb)
+        print(f"CNN-BiGRU best epoch={best_epoch_hyb}, best val_bleu4={best_bleu_hyb:.4f}")
+
+        t_hyb_beam = time.time()
+        hyb_s2s_test = evaluate_seq2seq_bleu(hyb_s2s, src_test, tgt_test, tgt_vocab, decode_method="beam", cfg=cfg)
+        infer_seconds_hyb_beam = time.time() - t_hyb_beam
+        t_hyb_greedy = time.time()
+        hyb_s2s_test_greedy = evaluate_seq2seq_bleu(hyb_s2s, src_test, tgt_test, tgt_vocab, decode_method="greedy", cfg=cfg)
+        infer_seconds_hyb_greedy = time.time() - t_hyb_greedy
+        print("\nCNN-BiGRU 测试 BLEU:")
+        print(json.dumps(hyb_s2s_test, ensure_ascii=False, indent=2))
+
     plot_training_curves(hist_s2s, hist_tf, out_dir)
     examples_df = save_translation_examples(
         seq2seq,
@@ -1049,88 +1164,132 @@ def run_experiment(cfg: Config) -> pd.DataFrame:
     save_translation_error_analysis(examples_df, out_dir)
 
     n_test_sent = len(src_test)
-    decode_ablation = pd.DataFrame(
-        [
-            {
-                "model": "Seq2Seq+Attention",
-                "decode_method": "beam",
-                "BLEU-1": s2s_test["bleu1"],
-                "BLEU-2": s2s_test["bleu2"],
-                "BLEU-4": s2s_test["bleu4"],
-                "infer_seconds": infer_seconds_s2s_beam,
-                "sentences_per_sec": n_test_sent / max(infer_seconds_s2s_beam, 1e-8),
-            },
-            {
-                "model": "Seq2Seq+Attention",
-                "decode_method": "greedy",
-                "BLEU-1": s2s_test_greedy["bleu1"],
-                "BLEU-2": s2s_test_greedy["bleu2"],
-                "BLEU-4": s2s_test_greedy["bleu4"],
-                "infer_seconds": infer_seconds_s2s_greedy,
-                "sentences_per_sec": n_test_sent / max(infer_seconds_s2s_greedy, 1e-8),
-            },
-            {
-                "model": "Transformer",
-                "decode_method": "beam",
-                "BLEU-1": tf_test["bleu1"],
-                "BLEU-2": tf_test["bleu2"],
-                "BLEU-4": tf_test["bleu4"],
-                "infer_seconds": infer_seconds_tf_beam,
-                "sentences_per_sec": n_test_sent / max(infer_seconds_tf_beam, 1e-8),
-            },
-            {
-                "model": "Transformer",
-                "decode_method": "greedy",
-                "BLEU-1": tf_test_greedy["bleu1"],
-                "BLEU-2": tf_test_greedy["bleu2"],
-                "BLEU-4": tf_test_greedy["bleu4"],
-                "infer_seconds": infer_seconds_tf_greedy,
-                "sentences_per_sec": n_test_sent / max(infer_seconds_tf_greedy, 1e-8),
-            },
-        ]
-    )
+    ablation_rows = [
+        {
+            "model": "Seq2Seq+Attention",
+            "decode_method": "beam",
+            "BLEU-1": s2s_test["bleu1"],
+            "BLEU-2": s2s_test["bleu2"],
+            "BLEU-4": s2s_test["bleu4"],
+            "infer_seconds": infer_seconds_s2s_beam,
+            "sentences_per_sec": n_test_sent / max(infer_seconds_s2s_beam, 1e-8),
+        },
+        {
+            "model": "Seq2Seq+Attention",
+            "decode_method": "greedy",
+            "BLEU-1": s2s_test_greedy["bleu1"],
+            "BLEU-2": s2s_test_greedy["bleu2"],
+            "BLEU-4": s2s_test_greedy["bleu4"],
+            "infer_seconds": infer_seconds_s2s_greedy,
+            "sentences_per_sec": n_test_sent / max(infer_seconds_s2s_greedy, 1e-8),
+        },
+        {
+            "model": "Transformer",
+            "decode_method": "beam",
+            "BLEU-1": tf_test["bleu1"],
+            "BLEU-2": tf_test["bleu2"],
+            "BLEU-4": tf_test["bleu4"],
+            "infer_seconds": infer_seconds_tf_beam,
+            "sentences_per_sec": n_test_sent / max(infer_seconds_tf_beam, 1e-8),
+        },
+        {
+            "model": "Transformer",
+            "decode_method": "greedy",
+            "BLEU-1": tf_test_greedy["bleu1"],
+            "BLEU-2": tf_test_greedy["bleu2"],
+            "BLEU-4": tf_test_greedy["bleu4"],
+            "infer_seconds": infer_seconds_tf_greedy,
+            "sentences_per_sec": n_test_sent / max(infer_seconds_tf_greedy, 1e-8),
+        },
+    ]
+    if cfg.include_hybrid and hyb_s2s_test is not None and hyb_s2s_test_greedy is not None:
+        ablation_rows.extend(
+            [
+                {
+                    "model": "CNNBiGRU",
+                    "decode_method": "beam",
+                    "BLEU-1": hyb_s2s_test["bleu1"],
+                    "BLEU-2": hyb_s2s_test["bleu2"],
+                    "BLEU-4": hyb_s2s_test["bleu4"],
+                    "infer_seconds": infer_seconds_hyb_beam,
+                    "sentences_per_sec": n_test_sent / max(infer_seconds_hyb_beam, 1e-8),
+                },
+                {
+                    "model": "CNNBiGRU",
+                    "decode_method": "greedy",
+                    "BLEU-1": hyb_s2s_test_greedy["bleu1"],
+                    "BLEU-2": hyb_s2s_test_greedy["bleu2"],
+                    "BLEU-4": hyb_s2s_test_greedy["bleu4"],
+                    "infer_seconds": infer_seconds_hyb_greedy,
+                    "sentences_per_sec": n_test_sent / max(infer_seconds_hyb_greedy, 1e-8),
+                },
+            ]
+        )
+    decode_ablation = pd.DataFrame(ablation_rows)
     decode_ablation.to_csv(out_dir / "translation_decode_ablation.csv", index=False, encoding="utf-8-sig")
 
-    results = pd.DataFrame(
-        [
+    result_rows = [
+        {
+            "model": "Seq2Seq+Attention",
+            "BLEU-1": s2s_test["bleu1"],
+            "BLEU-2": s2s_test["bleu2"],
+            "BLEU-4": s2s_test["bleu4"],
+            "BLEU-1-greedy": s2s_test_greedy["bleu1"],
+            "BLEU-2-greedy": s2s_test_greedy["bleu2"],
+            "BLEU-4-greedy": s2s_test_greedy["bleu4"],
+            "best_val_BLEU-4": best_bleu_s2s,
+            "best_epoch": best_epoch_s2s,
+            "trained_epochs": len(hist_s2s["loss"]),
+            "train_seconds": train_seconds_s2s,
+            "infer_seconds_beam": infer_seconds_s2s_beam,
+            "infer_sents_per_sec_beam": n_test_sent / max(infer_seconds_s2s_beam, 1e-8),
+            "infer_seconds_greedy": infer_seconds_s2s_greedy,
+            "infer_sents_per_sec_greedy": n_test_sent / max(infer_seconds_s2s_greedy, 1e-8),
+            "params": sum(p.numel() for p in seq2seq.parameters()),
+        },
+        {
+            "model": "Transformer",
+            "BLEU-1": tf_test["bleu1"],
+            "BLEU-2": tf_test["bleu2"],
+            "BLEU-4": tf_test["bleu4"],
+            "BLEU-1-greedy": tf_test_greedy["bleu1"],
+            "BLEU-2-greedy": tf_test_greedy["bleu2"],
+            "BLEU-4-greedy": tf_test_greedy["bleu4"],
+            "best_val_BLEU-4": best_bleu_tf,
+            "best_epoch": best_epoch_tf,
+            "trained_epochs": len(hist_tf["loss"]),
+            "train_seconds": train_seconds_tf,
+            "infer_seconds_beam": infer_seconds_tf_beam,
+            "infer_sents_per_sec_beam": n_test_sent / max(infer_seconds_tf_beam, 1e-8),
+            "infer_seconds_greedy": infer_seconds_tf_greedy,
+            "infer_sents_per_sec_greedy": n_test_sent / max(infer_seconds_tf_greedy, 1e-8),
+            "params": sum(p.numel() for p in transformer.parameters()),
+        },
+    ]
+
+    if cfg.include_hybrid and hyb_s2s is not None and hyb_s2s_test is not None and hyb_s2s_test_greedy is not None:
+        result_rows.append(
             {
-                "model": "Seq2Seq+Attention",
-                "BLEU-1": s2s_test["bleu1"],
-                "BLEU-2": s2s_test["bleu2"],
-                "BLEU-4": s2s_test["bleu4"],
-                "BLEU-1-greedy": s2s_test_greedy["bleu1"],
-                "BLEU-2-greedy": s2s_test_greedy["bleu2"],
-                "BLEU-4-greedy": s2s_test_greedy["bleu4"],
-                "best_val_BLEU-4": best_bleu_s2s,
-                "best_epoch": best_epoch_s2s,
-                "trained_epochs": len(hist_s2s["loss"]),
-                "train_seconds": train_seconds_s2s,
-                "infer_seconds_beam": infer_seconds_s2s_beam,
-                "infer_sents_per_sec_beam": n_test_sent / max(infer_seconds_s2s_beam, 1e-8),
-                "infer_seconds_greedy": infer_seconds_s2s_greedy,
-                "infer_sents_per_sec_greedy": n_test_sent / max(infer_seconds_s2s_greedy, 1e-8),
-                "params": sum(p.numel() for p in seq2seq.parameters()),
-            },
-            {
-                "model": "Transformer",
-                "BLEU-1": tf_test["bleu1"],
-                "BLEU-2": tf_test["bleu2"],
-                "BLEU-4": tf_test["bleu4"],
-                "BLEU-1-greedy": tf_test_greedy["bleu1"],
-                "BLEU-2-greedy": tf_test_greedy["bleu2"],
-                "BLEU-4-greedy": tf_test_greedy["bleu4"],
-                "best_val_BLEU-4": best_bleu_tf,
-                "best_epoch": best_epoch_tf,
-                "trained_epochs": len(hist_tf["loss"]),
-                "train_seconds": train_seconds_tf,
-                "infer_seconds_beam": infer_seconds_tf_beam,
-                "infer_sents_per_sec_beam": n_test_sent / max(infer_seconds_tf_beam, 1e-8),
-                "infer_seconds_greedy": infer_seconds_tf_greedy,
-                "infer_sents_per_sec_greedy": n_test_sent / max(infer_seconds_tf_greedy, 1e-8),
-                "params": sum(p.numel() for p in transformer.parameters()),
-            },
-        ]
-    ).sort_values(by="BLEU-4", ascending=False)
+                "model": "CNNBiGRU",
+                "BLEU-1": hyb_s2s_test["bleu1"],
+                "BLEU-2": hyb_s2s_test["bleu2"],
+                "BLEU-4": hyb_s2s_test["bleu4"],
+                "BLEU-1-greedy": hyb_s2s_test_greedy["bleu1"],
+                "BLEU-2-greedy": hyb_s2s_test_greedy["bleu2"],
+                "BLEU-4-greedy": hyb_s2s_test_greedy["bleu4"],
+                "best_val_BLEU-4": best_bleu_hyb,
+                "best_epoch": best_epoch_hyb,
+                "trained_epochs": len(hist_hyb["loss"]),
+                "train_seconds": train_seconds_hyb,
+                "infer_seconds_beam": infer_seconds_hyb_beam,
+                "infer_sents_per_sec_beam": n_test_sent / max(infer_seconds_hyb_beam, 1e-8),
+                "infer_seconds_greedy": infer_seconds_hyb_greedy,
+                "infer_sents_per_sec_greedy": n_test_sent / max(infer_seconds_hyb_greedy, 1e-8),
+                "params": sum(p.numel() for p in hyb_s2s.parameters()),
+            }
+        )
+
+    results = pd.DataFrame(result_rows).sort_values(by="BLEU-4", ascending=False)
 
     results.to_csv(out_dir / "translation_results.csv", index=False, encoding="utf-8-sig")
     eff_cols = [
