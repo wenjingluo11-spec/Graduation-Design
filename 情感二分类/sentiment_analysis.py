@@ -87,6 +87,7 @@ class Config:
     min_df_tfidf: int = 3
     device: str = field(default_factory=_detect_device)
     quick: bool = False
+    include_hybrid: bool = False
 
 
 def parse_args() -> Config:
@@ -102,6 +103,7 @@ def parse_args() -> Config:
     parser.add_argument("--min-delta", type=float, default=1e-4)
     parser.add_argument("--device", type=str, default=None, choices=[None, "cpu", "cuda", "mps"])
     parser.add_argument("--quick", action="store_true", help="快速跑通模式")
+    parser.add_argument("--include-hybrid", action="store_true", help="加入 CNN-BiGRU 混合模型对比")
     args = parser.parse_args()
 
     cfg = Config(
@@ -115,6 +117,7 @@ def parse_args() -> Config:
         early_stopping_patience=args.patience,
         early_stopping_min_delta=args.min_delta,
         quick=args.quick,
+        include_hybrid=args.include_hybrid,
     )
     if args.device is not None:
         cfg.device = args.device  # 用户显式指定即生效
@@ -261,6 +264,37 @@ class BiGRUClassifier(nn.Module):
         pooled = out.mean(dim=1)
         pooled = self.dropout(pooled)
         return self.classifier(pooled).squeeze(1)
+
+
+class CNNBiGRU(nn.Module):
+    """Stacked CNN-BiGRU 混合架构: 卷积提局部 n-gram → BiGRU 建模时序 → max+mean pool → 分类头.
+
+    设计目标: 参数量与 TextCNN/BiGRU 同量级,以便公平对比 (~2.7M with default config).
+    """
+    def __init__(self, vocab_size: int, emb_dim: int, hidden_dim: int, dropout: float, pad_idx: int = 0):
+        super().__init__()
+        self.embedding = nn.Embedding(vocab_size, emb_dim, padding_idx=pad_idx)
+        self.conv = nn.Conv1d(emb_dim, emb_dim, kernel_size=3, padding=1)
+        self.bigru = nn.GRU(
+            input_size=emb_dim,
+            hidden_size=hidden_dim,
+            num_layers=1,
+            bidirectional=True,
+            batch_first=True,
+        )
+        self.dropout = nn.Dropout(dropout)
+        self.classifier = nn.Linear(hidden_dim * 2 * 2, 1)  # bi*hidden, max+mean pooling
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        emb = self.embedding(x)                            # [B, L, E]
+        conv_in = emb.transpose(1, 2)                      # [B, E, L]
+        conv_out = torch.relu(self.conv(conv_in))          # [B, E, L]
+        gru_in = conv_out.transpose(1, 2)                  # [B, L, E]
+        gru_out, _ = self.bigru(gru_in)                    # [B, L, 2H]
+        max_pool = gru_out.max(dim=1)[0]                   # [B, 2H]
+        mean_pool = gru_out.mean(dim=1)                    # [B, 2H]
+        pooled = torch.cat([max_pool, mean_pool], dim=1)   # [B, 4H]
+        return self.classifier(self.dropout(pooled)).squeeze(1)
 
 
 class PositionalEncoding(nn.Module):
@@ -716,6 +750,28 @@ def run_experiment(cfg: Config) -> pd.DataFrame:
     results.append({"model": "Transformer", **tf_metrics})
     pred_by_model["Transformer"] = tf_pred
     prob_by_model["Transformer"] = tf_prob
+
+    if cfg.include_hybrid:
+        hybrid = CNNBiGRU(len(vocab), cfg.embedding_dim, cfg.hidden_dim, cfg.dropout)
+        h_metrics, h_hist, h_y, h_pred, h_prob = run_dl_model(
+            "CNNBiGRU",
+            hybrid,
+            train_loader,
+            val_loader,
+            test_loader,
+            ckpt_dir,
+            cfg,
+        )
+        plot_history(h_hist, "CNNBiGRU", out_dir)
+        plot_confusion_matrix(
+            confusion_matrix(h_y, h_pred),
+            ["negative", "positive"],
+            "CNNBiGRU Confusion Matrix",
+            out_dir / "cnnbigru_confusion_matrix.png",
+        )
+        results.append({"model": "CNNBiGRU", **h_metrics})
+        pred_by_model["CNNBiGRU"] = h_pred
+        prob_by_model["CNNBiGRU"] = h_prob
 
     results_df = pd.DataFrame(results).sort_values(by="f1", ascending=False).reset_index(drop=True)
     print("\n最终结果:")
