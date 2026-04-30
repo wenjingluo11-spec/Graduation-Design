@@ -88,6 +88,8 @@ class Config:
     quick: bool = False
     device: str = field(default_factory=_detect_device)
     include_hybrid: bool = False
+    label_smoothing: float = 0.0
+    output_suffix: str = ""
 
 
 def parse_args() -> Config:
@@ -105,6 +107,8 @@ def parse_args() -> Config:
     parser.add_argument("--device", type=str, default=None, choices=[None, "cpu", "cuda", "mps"])
     parser.add_argument("--quick", action="store_true")
     parser.add_argument("--include-hybrid", action="store_true", help="加入 CNN-BiGRU 混合 encoder")
+    parser.add_argument("--label-smoothing", type=float, default=0.0, help="0 = 标准 CE; 0.1 是 NMT 经典默认值")
+    parser.add_argument("--output-suffix", type=str, default="", help="附加到所有输出文件名后,便于 LS 与 baseline 并存")
     args = parser.parse_args()
 
     cfg = Config(
@@ -120,6 +124,8 @@ def parse_args() -> Config:
         early_stopping_min_delta_bleu=args.min_delta_bleu,
         quick=args.quick,
         include_hybrid=args.include_hybrid,
+        label_smoothing=args.label_smoothing,
+        output_suffix=args.output_suffix,
     )
     if args.device is not None:
         cfg.device = args.device  # 用户显式指定即生效
@@ -631,6 +637,34 @@ def evaluate_seq2seq_bleu(
     return compute_bleu_scores(refs, hyps, tgt_vocab)
 
 
+class LabelSmoothingCrossEntropy(nn.Module):
+    """Label-smoothed CE with PAD ignore.
+
+    Reference: Inception-V3 / "Rethinking the Inception Architecture for Computer Vision".
+    For a target class t and num_classes N: the smoothed distribution puts
+    (1 - epsilon) on t and epsilon / (N - 1) on every other class.
+    PAD positions (target == ignore_index) contribute 0 to the loss.
+    """
+    def __init__(self, epsilon: float = 0.1, ignore_index: int = PAD_IDX):
+        super().__init__()
+        self.epsilon = epsilon
+        self.ignore_index = ignore_index
+
+    def forward(self, logits: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
+        # logits: [B*T, V] — flattened; target: [B*T]
+        n_classes = logits.size(-1)
+        log_probs = torch.log_softmax(logits, dim=-1)
+        with torch.no_grad():
+            mask = (target != self.ignore_index)
+            true_dist = torch.full_like(log_probs, self.epsilon / max(n_classes - 1, 1))
+            target_safe = target.clamp(min=0)  # avoid -1 indices for ignored entries
+            true_dist.scatter_(1, target_safe.unsqueeze(1), 1 - self.epsilon)
+        loss = -(true_dist * log_probs).sum(dim=-1)
+        loss = loss * mask.float()
+        denom = mask.float().sum().clamp(min=1)
+        return loss.sum() / denom
+
+
 def train_transformer_epoch(
     model: TransformerTranslator,
     loader: data.DataLoader,
@@ -798,6 +832,7 @@ def save_translation_examples(
     cfg: Config,
     out_dir: Path,
     n_samples: int = 12,
+    suffix: str = "",
 ) -> pd.DataFrame:
     samples = random.sample(test_pairs, min(n_samples, len(test_pairs)))
     rows: List[Dict[str, str]] = []
@@ -822,7 +857,7 @@ def save_translation_examples(
         )
 
     df = pd.DataFrame(rows)
-    df.to_csv(out_dir / "translation_examples.csv", index=False, encoding="utf-8-sig")
+    df.to_csv(out_dir / f"translation_examples{suffix}.csv", index=False, encoding="utf-8-sig")
     return df
 
 
@@ -846,7 +881,7 @@ def _error_tag(pred: str, ref: str, overlap: float, length_ratio: float) -> str:
     return "semantic_or_grammar_error"
 
 
-def save_translation_error_analysis(examples_df: pd.DataFrame, out_dir: Path) -> None:
+def save_translation_error_analysis(examples_df: pd.DataFrame, out_dir: Path, suffix: str = "") -> None:
     rows: List[Dict[str, float | str]] = []
     pred_cols = [
         "seq2seq_beam_pred",
@@ -873,7 +908,7 @@ def save_translation_error_analysis(examples_df: pd.DataFrame, out_dir: Path) ->
                 }
             )
     analysis_df = pd.DataFrame(rows)
-    analysis_df.to_csv(out_dir / "translation_error_analysis.csv", index=False, encoding="utf-8-sig")
+    analysis_df.to_csv(out_dir / f"translation_error_analysis{suffix}.csv", index=False, encoding="utf-8-sig")
 
     summary_df = (
         analysis_df.groupby(["model_decode", "error_tag"], as_index=False)
@@ -881,7 +916,7 @@ def save_translation_error_analysis(examples_df: pd.DataFrame, out_dir: Path) ->
         .rename(columns={"size": "count"})
         .sort_values(by=["model_decode", "count"], ascending=[True, False])
     )
-    summary_df.to_csv(out_dir / "translation_error_summary.csv", index=False, encoding="utf-8-sig")
+    summary_df.to_csv(out_dir / f"translation_error_summary{suffix}.csv", index=False, encoding="utf-8-sig")
 
 
 def run_experiment(cfg: Config) -> pd.DataFrame:
@@ -890,6 +925,7 @@ def run_experiment(cfg: Config) -> pd.DataFrame:
     out_dir.mkdir(parents=True, exist_ok=True)
     ckpt_dir = out_dir / "checkpoints"
     ckpt_dir.mkdir(parents=True, exist_ok=True)
+    suffix = cfg.output_suffix
 
     print("\n配置:")
     print(json.dumps(asdict(cfg), ensure_ascii=False, indent=2))
@@ -1006,6 +1042,10 @@ def run_experiment(cfg: Config) -> pd.DataFrame:
         dropout=cfg.dropout,
     ).to(device)
     opt_tf = optim.AdamW(transformer.parameters(), lr=cfg.lr_transformer, weight_decay=1e-5)
+    if cfg.label_smoothing > 0:
+        tf_criterion = LabelSmoothingCrossEntropy(epsilon=cfg.label_smoothing, ignore_index=PAD_IDX)
+    else:
+        tf_criterion = nn.CrossEntropyLoss(ignore_index=PAD_IDX)
 
     hist_tf: Dict[str, List[float]] = {"loss": [], "bleu4_val": []}
     best_bleu_tf = -1.0
@@ -1019,7 +1059,7 @@ def run_experiment(cfg: Config) -> pd.DataFrame:
     print(f"\n{'=' * 70}\n训练 Transformer\n{'=' * 70}")
     for ep in range(1, cfg.epochs_transformer + 1):
         t0 = time.time()
-        loss = train_transformer_epoch(transformer, train_loader, opt_tf, criterion, device)
+        loss = train_transformer_epoch(transformer, train_loader, opt_tf, tf_criterion, device)
         val_bleu = evaluate_transformer_bleu(
             transformer,
             src_val,
@@ -1160,8 +1200,9 @@ def run_experiment(cfg: Config) -> pd.DataFrame:
         cfg,
         out_dir,
         n_samples=80 if not cfg.quick else 12,
+        suffix=suffix,
     )
-    save_translation_error_analysis(examples_df, out_dir)
+    save_translation_error_analysis(examples_df, out_dir, suffix=suffix)
 
     n_test_sent = len(src_test)
     ablation_rows = [
@@ -1226,7 +1267,7 @@ def run_experiment(cfg: Config) -> pd.DataFrame:
             ]
         )
     decode_ablation = pd.DataFrame(ablation_rows)
-    decode_ablation.to_csv(out_dir / "translation_decode_ablation.csv", index=False, encoding="utf-8-sig")
+    decode_ablation.to_csv(out_dir / f"translation_decode_ablation{suffix}.csv", index=False, encoding="utf-8-sig")
 
     result_rows = [
         {
@@ -1291,7 +1332,7 @@ def run_experiment(cfg: Config) -> pd.DataFrame:
 
     results = pd.DataFrame(result_rows).sort_values(by="BLEU-4", ascending=False)
 
-    results.to_csv(out_dir / "translation_results.csv", index=False, encoding="utf-8-sig")
+    results.to_csv(out_dir / f"translation_results{suffix}.csv", index=False, encoding="utf-8-sig")
     eff_cols = [
         "model",
         "params",
@@ -1301,8 +1342,8 @@ def run_experiment(cfg: Config) -> pd.DataFrame:
         "infer_seconds_greedy",
         "infer_sents_per_sec_greedy",
     ]
-    results[eff_cols].to_csv(out_dir / "translation_efficiency.csv", index=False, encoding="utf-8-sig")
-    (out_dir / "translation_config.json").write_text(
+    results[eff_cols].to_csv(out_dir / f"translation_efficiency{suffix}.csv", index=False, encoding="utf-8-sig")
+    (out_dir / f"translation_config{suffix}.json").write_text(
         json.dumps(asdict(cfg), ensure_ascii=False, indent=2),
         encoding="utf-8",
     )
@@ -1310,7 +1351,7 @@ def run_experiment(cfg: Config) -> pd.DataFrame:
     print("\n最终结果:")
     print(results.to_string(index=False, float_format="%.4f"))
     print("\n示例翻译已保存:")
-    print((out_dir / "translation_examples.csv").resolve())
+    print((out_dir / f"translation_examples{suffix}.csv").resolve())
     return results
 
 
