@@ -403,7 +403,12 @@ class TransformerTranslator(nn.Module):
         )
         self.fc = nn.Linear(d_model, tgt_vocab_size)
 
-    def forward(self, src: torch.Tensor, tgt_in: torch.Tensor) -> torch.Tensor:
+    def forward(
+        self,
+        src: torch.Tensor,
+        tgt_in: torch.Tensor,
+        return_attention: bool = False,
+    ) -> torch.Tensor:
         src_mask = None
         tgt_len = tgt_in.size(1)
         tgt_causal_mask = torch.triu(
@@ -425,7 +430,21 @@ class TransformerTranslator(nn.Module):
             tgt_key_padding_mask=tgt_key_padding_mask,
             memory_key_padding_mask=src_key_padding_mask,
         )
-        return self.fc(out)
+        logits = self.fc(out)
+        if return_attention:
+            # Re-run encoder + last decoder cross-attn to extract attention weights
+            memory = self.transformer.encoder(
+                src_emb, mask=src_mask, src_key_padding_mask=src_key_padding_mask,
+            )
+            last_dec = self.transformer.decoder.layers[-1]
+            with torch.no_grad():
+                _, cross_attn = last_dec.multihead_attn(
+                    tgt_emb, memory, memory,
+                    key_padding_mask=src_key_padding_mask,
+                    need_weights=True, average_attn_weights=False,
+                )
+            return logits, cross_attn  # cross_attn: [B, num_heads, T_tgt, T_src]
+        return logits
 
 
 def ids_to_tokens(ids: Sequence[int], vocab: Vocabulary) -> List[str]:
