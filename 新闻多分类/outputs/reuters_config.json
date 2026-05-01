@@ -19,6 +19,10 @@
   "test_ratio": 0.2,
   "val_ratio": 0.1,
   "max_samples": 11228,
-  "device": "cuda",
-  "quick": false
+  "device": "mps",
+  "quick": false,
+  "include_hybrid": true,
+  "loss": "ce",
+  "focal_gamma": 2.0,
+  "output_suffix": ""
 }

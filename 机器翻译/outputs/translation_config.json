@@ -30,5 +30,8 @@
   "beam_size": 4,
   "length_penalty": 0.7,
   "quick": false,
-  "device": "cuda"
+  "device": "mps",
+  "include_hybrid": true,
+  "label_smoothing": 0.0,
+  "output_suffix": ""
 }

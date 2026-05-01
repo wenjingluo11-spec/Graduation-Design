@@ -20,6 +20,7 @@
   "max_train_samples": 12000,
   "max_test_samples": 5000,
   "min_df_tfidf": 3,
-  "device": "cuda",
-  "quick": false
+  "device": "mps",
+  "quick": false,
+  "include_hybrid": true
 }
