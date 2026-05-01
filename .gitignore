@@ -65,3 +65,20 @@ run_logs/
 
 # Optuna 持久化 SQLite (内容已导出 CSV/JSON, 数据库不进 git)
 **/optuna_study.db
+
+# Optuna 大尺寸交互式可视化 HTML (论文用截图, 不进 git)
+supplementary_outputs/optuna/optuna_contour.html
+supplementary_outputs/optuna/optuna_parallel.html
+
+# 数据集 (公开数据, 从源头下载, 不进 git)
+aclImdb/
+aclImdb_v1/
+情感二分类/aclImdb/
+reuters.npz
+spa.txt
+
+# Claude Code 本地设置
+.claude/settings.local.json
+
+# 种子稳定性实验的全量预测 CSV (论文只引摘要, 不进 git)
+supplementary_outputs/stability/**/sentiment_predictions_best_model.csv
