@@ -1,4 +1,4 @@
 ﻿task,is_full_run,primary_metric,best_model,score
 Sentiment (IMDB),True,F1,NaiveBayes,0.8626428714658111
-News Multi-class (Reuters-46),True,Macro-F1,TextCNN,0.605049927785666
-Machine Translation (Es->En),True,BLEU-4,Seq2Seq+Attention,0.3494700814517634
+News Multi-class (Reuters-46),True,Macro-F1,TextCNN,0.6008543355605355
+Machine Translation (Es->En),True,BLEU-4,Seq2Seq+Attention,0.3489662212467874
