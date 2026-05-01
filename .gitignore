@@ -62,3 +62,6 @@ thesis_templates/
 outputs_windows_baseline/
 run_logs/
 */outputs_lc_*/
+
+# Optuna 持久化 SQLite (内容已导出 CSV/JSON, 数据库不进 git)
+**/optuna_study.db
