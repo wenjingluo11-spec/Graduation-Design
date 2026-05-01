@@ -1,0 +1,23 @@
+{
+  "number": 23,
+  "value": 0.6371881287141672,
+  "params": {
+    "embedding_dim": 192,
+    "num_heads": 2,
+    "lr": 0.0013174790393799137,
+    "weight_decay": 8.293478034295821e-06,
+    "dropout": 0.3221024660311547,
+    "ff_dim": 128,
+    "num_layers": 3,
+    "batch_size": 96,
+    "loss": "focal",
+    "focal_gamma": 0.7347608621198866
+  },
+  "user_attrs": {
+    "best_val_f1_macro": 0.6230699378426432,
+    "params": 4444270,
+    "test_accuracy": 0.8156723063223509,
+    "test_f1_weighted": 0.812328836285821,
+    "trained_epochs": 15
+  }
+}
