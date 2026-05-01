@@ -256,11 +256,11 @@ def evaluate_reuters(p: float, mode: str) -> Dict[str, float]:
         ),
         "Transformer": lambda: TransformerMulti(
             num_words,
-            num_classes,
             cfg.embedding_dim,
             cfg.num_heads,
             cfg.ff_dim,
             cfg.num_transformer_layers,
+            num_classes,
             cfg.dropout,
         ),
         "CNNBiGRU": lambda: CNNBiGRUMulti(
