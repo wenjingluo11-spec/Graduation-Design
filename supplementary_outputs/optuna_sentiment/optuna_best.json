@@ -1,0 +1,22 @@
+{
+  "number": 21,
+  "value": 0.8213887857408095,
+  "params": {
+    "embedding_dim": 192,
+    "num_heads": 8,
+    "lr": 0.0011434137802649885,
+    "weight_decay": 1.0142705834419154e-06,
+    "dropout": 0.4196675150309248,
+    "ff_dim": 256,
+    "num_layers": 3,
+    "batch_size": 96
+  },
+  "user_attrs": {
+    "best_val_f1": 0.8234387047031612,
+    "params": 4583425,
+    "test_accuracy": 0.8076,
+    "test_precision": 0.7704632532218739,
+    "test_recall": 0.8795228628230616,
+    "trained_epochs": 12
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "number": 12,
+  "value": 0.22155489457760613,
+  "params": {
+    "embedding_dim": 128,
+    "num_heads": 4,
+    "lr": 0.0008567454264302404,
+    "weight_decay": 4.766442902019308e-06,
+    "dropout": 0.1690270764408139,
+    "ff_dim": 512,
+    "num_layers": 3,
+    "label_smoothing": 0.146191751278399
+  },
+  "user_attrs": {
+    "best_val_bleu4": 0.23401311281396053,
+    "params": 4924785,
+    "test_bleu1": 0.5781744752169866,
+    "test_bleu2": 0.4105255407548453,
+    "trained_epochs": 8
+  }
+}
